@@ -2,17 +2,17 @@
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import CattleGrid from '@/components/CattleGrid';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom'; // Not needed anymore as we use direct links
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-dairy-light">
       <Header />
-      
+
       <main>
         <Hero />
-        
-        <section className="py-12 px-4">
+
+        <section id="featured-cattle" className="py-12 px-4">
           <div className="container mx-auto">
             <div className="mb-8 text-center">
               <h2 className="text-3xl font-bold text-dairy-dark">Featured Cattle Breeds</h2>
@@ -23,7 +23,7 @@ const Index = () => {
             <CattleGrid />
           </div>
         </section>
-        
+
         <section className="py-12 px-4 bg-white">
           <div className="container mx-auto">
             <div className="mb-8 text-center">
@@ -32,27 +32,27 @@ const Index = () => {
                 We offer the best breeds with superior returns
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <FeatureCard 
-                title="Premium Breeds" 
+              <FeatureCard
+                title="Premium Breeds"
                 description="All our cattle are carefully selected for optimal milk production and health."
                 iconClass="bg-dairy-yellow/20"
               />
-              <FeatureCard 
-                title="Expert Maintenance" 
+              <FeatureCard
+                title="Expert Maintenance"
                 description="Our team of veterinarians ensures the cattle remain in excellent health."
                 iconClass="bg-dairy-green/20"
               />
-              <FeatureCard 
-                title="Guaranteed Returns" 
+              <FeatureCard
+                title="Guaranteed Returns"
                 description="Enjoy predictable monthly returns from your cattle investment."
                 iconClass="bg-dairy-orange/20"
               />
             </div>
           </div>
         </section>
-        
+
         <section className="py-12 px-4 bg-dairy-green/5">
           <div className="container mx-auto">
             <div className="mb-8 text-center">
@@ -61,7 +61,7 @@ const Index = () => {
                 Start your dairy investment journey in three simple steps
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center p-6">
                 <div className="w-12 h-12 bg-dairy-green text-white rounded-full flex items-center justify-center mx-auto mb-4">
@@ -72,7 +72,7 @@ const Index = () => {
                   Browse our selection and pick the cattle that matches your investment goals.
                 </p>
               </div>
-              
+
               <div className="text-center p-6">
                 <div className="w-12 h-12 bg-dairy-green text-white rounded-full flex items-center justify-center mx-auto mb-4">
                   2
@@ -82,7 +82,7 @@ const Index = () => {
                   Finalize your investment with our secure payment options.
                 </p>
               </div>
-              
+
               <div className="text-center p-6">
                 <div className="w-12 h-12 bg-dairy-green text-white rounded-full flex items-center justify-center mx-auto mb-4">
                   3
@@ -96,7 +96,7 @@ const Index = () => {
           </div>
         </section>
       </main>
-      
+
       <footer className="bg-dairy-dark text-white py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -106,27 +106,27 @@ const Index = () => {
                 Premium cattle investment platform for sustainable returns.
               </p>
             </div>
-            
+
             <div>
               <h4 className="font-bold mb-4">Quick Links</h4>
               <ul className="space-y-2">
-                <li><Link to="/" className="text-gray-300 hover:text-dairy-yellow">Home</Link></li>
-                <li><Link to="/store" className="text-gray-300 hover:text-dairy-yellow">Store</Link></li>
-                <li><Link to="/investments" className="text-gray-300 hover:text-dairy-yellow">Investments</Link></li>
-                <li><Link to="/about" className="text-gray-300 hover:text-dairy-yellow">About</Link></li>
+                <li><a href="../home_page.html" className="text-gray-300 hover:text-dairy-yellow">Home</a></li>
+                <li><a href="../store.html" className="text-gray-300 hover:text-dairy-yellow">Store</a></li>
+                <li><a href="../dashboard.html" className="text-gray-300 hover:text-dairy-yellow">Dashboard</a></li>
+                <li><a href="../YourCattle.html" className="text-gray-300 hover:text-dairy-yellow">Your Cattle</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-bold mb-4">Support</h4>
               <ul className="space-y-2">
-                <li><Link to="/contact" className="text-gray-300 hover:text-dairy-yellow">Contact</Link></li>
-                <li><Link to="/faq" className="text-gray-300 hover:text-dairy-yellow">FAQs</Link></li>
-                <li><Link to="/terms" className="text-gray-300 hover:text-dairy-yellow">Terms & Conditions</Link></li>
-                <li><Link to="/privacy" className="text-gray-300 hover:text-dairy-yellow">Privacy Policy</Link></li>
+                <li><a href="../help/home.html" className="text-gray-300 hover:text-dairy-yellow">Help Center</a></li>
+                <li><a href="../help/faq.html" className="text-gray-300 hover:text-dairy-yellow">FAQs</a></li>
+                <li><a href="../help/terms.html" className="text-gray-300 hover:text-dairy-yellow">Terms & Conditions</a></li>
+                <li><a href="../help/privacy.html" className="text-gray-300 hover:text-dairy-yellow">Privacy Policy</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-bold mb-4">Contact</h4>
               <address className="not-italic text-gray-300">
@@ -137,7 +137,7 @@ const Index = () => {
               </address>
             </div>
           </div>
-          
+
           <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
             <p>&copy; {new Date().getFullYear()} Dairy-Lift. All rights reserved.</p>
           </div>
@@ -148,14 +148,14 @@ const Index = () => {
 };
 
 // Feature Card Component
-const FeatureCard = ({ 
-  title, 
-  description, 
-  iconClass 
-}: { 
-  title: string; 
-  description: string; 
-  iconClass: string; 
+const FeatureCard = ({
+  title,
+  description,
+  iconClass
+}: {
+  title: string;
+  description: string;
+  iconClass: string;
 }) => (
   <div className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
     <div className={`w-12 h-12 rounded-full ${iconClass} flex items-center justify-center mb-4`}>

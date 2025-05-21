@@ -12,11 +12,103 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <!-- Additional Resources -->
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com/3.4.16"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="js/auth.js"></script>
+  <script>
+    // Function to initialize auth and dispatch events
+    function initializeAuth() {
+      console.log('Initializing auth in store page...');
+      if (window.DairyLiftAuth) {
+        console.log('Auth script loaded, initializing...');
+        window.DairyLiftAuth.initAuth();
+
+        // Force UI update after a short delay
+        setTimeout(function() {
+          if (window.DairyLiftAuth) {
+            window.DairyLiftAuth.updateAuthUI();
+          }
+        }, 500);
+      } else {
+        console.error('Auth script not loaded properly');
+        // Try to load it again
+        var script = document.createElement('script');
+        script.src = 'js/auth.js';
+        script.onload = function() {
+          console.log('Auth script loaded dynamically');
+          if (window.DairyLiftAuth) {
+            window.DairyLiftAuth.initAuth();
+
+            // Force UI update after a short delay
+            setTimeout(function() {
+              if (window.DairyLiftAuth) {
+                window.DairyLiftAuth.updateAuthUI();
+              }
+            }, 500);
+          }
+        };
+        document.head.appendChild(script);
+      }
+    }
+
+    // Call initialization on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', initializeAuth);
+
+    // Also call initialization immediately if document is already loaded
+    if (document.readyState !== 'loading') {
+      initializeAuth();
+    }
+
+    // Call initialization on window load
+    window.addEventListener('load', initializeAuth);
+
+    // Listen for auth.js loaded event
+    document.addEventListener('dairyLiftAuthLoaded', function(event) {
+      console.log('Auth script loaded event received');
+      initializeAuth();
+    });
+
+    // Listen for storage events to sync auth state across tabs
+    window.addEventListener('storage', function(event) {
+      if (event.key === 'dairyLift_auth') {
+        console.log('Auth state changed in another tab, updating UI');
+        if (window.DairyLiftAuth) {
+          window.DairyLiftAuth.updateAuthUI();
+
+          // Force UI update after a short delay
+          setTimeout(function() {
+            if (window.DairyLiftAuth) {
+              window.DairyLiftAuth.updateAuthUI();
+            }
+          }, 300);
+        }
+      }
+    });
+
+    // Set up periodic check for auth state
+    setInterval(function() {
+      if (window.DairyLiftAuth) {
+        const isLoggedIn = window.DairyLiftAuth.isLoggedIn();
+        const profileIcon = document.getElementById('profile-icon-link');
+
+        if (isLoggedIn && !profileIcon) {
+          console.log('Periodic check: User is logged in but profile icon not found, updating UI');
+          window.DairyLiftAuth.updateAuthUI();
+        }
+      }
+    }, 1000);
+
+    // Force an update when the user becomes visible (tab focus)
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden && window.DairyLiftAuth) {
+        console.log('Page became visible, forcing UI update');
+        window.DairyLiftAuth.updateAuthUI();
+      }
+    });
+  </script>
   <script>
     tailwind.config = {
       theme: {
@@ -72,7 +164,7 @@
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       color: var(--foreground);
@@ -82,12 +174,12 @@
       display: flex;
       flex-direction: column;
     }
-    
+
     a {
       text-decoration: none;
       color: inherit;
     }
-    
+
     img {
       max-width: 100%;
       height: auto;
@@ -155,17 +247,17 @@
       overflow: hidden;
       z-index: 50;
     }
-    
+
     .mobile-menu-toggle:hover {
       background-color: var(--primary-light);
       transform: scale(1.05);
       box-shadow: 0 0 10px rgba(173, 110, 245, 0.2);
     }
-    
+
     .mobile-menu-toggle:active {
       transform: scale(0.95);
     }
-    
+
     .hamburger-lines {
       width: 22px;
       height: 18px;
@@ -174,7 +266,7 @@
       flex-direction: column;
       justify-content: space-between;
     }
-    
+
     .hamburger-line {
       display: block;
       height: 2px;
@@ -184,22 +276,22 @@
       transition: all 0.3s ease-in-out;
       transform-origin: center;
     }
-    
+
     .mobile-menu-toggle.active .hamburger-line:nth-child(1) {
       transform: translateY(8px) rotate(45deg);
       width: 22px;
     }
-    
+
     .mobile-menu-toggle.active .hamburger-line:nth-child(2) {
       opacity: 0;
       transform: translateX(-10px);
     }
-    
+
     .mobile-menu-toggle.active .hamburger-line:nth-child(3) {
       transform: translateY(-8px) rotate(-45deg);
       width: 22px;
     }
-    
+
     .mobile-menu-toggle::after {
       content: '';
       position: absolute;
@@ -211,11 +303,11 @@
       transform: scale(0);
       transition: transform 0.3s ease;
     }
-    
+
     .mobile-menu-toggle:hover::after {
       transform: scale(1);
     }
-    
+
     .menu-toggle-ripple {
       position: absolute;
       background-color: rgba(173, 110, 245, 0.3);
@@ -224,14 +316,14 @@
       animation: ripple 0.6s linear;
       pointer-events: none;
     }
-    
+
     @keyframes ripple {
       to {
         transform: scale(2);
         opacity: 0;
       }
     }
-    
+
     @keyframes fadeInUp {
       from {
         opacity: 0;
@@ -242,7 +334,7 @@
         transform: translateY(0);
       }
     }
-    
+
     .animate-in {
       animation: fadeInUp 0.8s ease-out both;
     }
@@ -267,7 +359,7 @@
     .mobile-menu.active {
       transform: translateX(280px);
     }
-    
+
     .mobile-menu-overlay {
       position: fixed;
       top: 0;
@@ -281,12 +373,12 @@
       transition: opacity 0.3s ease, visibility 0.3s ease;
       backdrop-filter: blur(2px);
     }
-    
+
     .mobile-menu-overlay.active {
       opacity: 1;
       visibility: visible;
     }
-    
+
     .mobile-nav-link {
       display: flex;
       align-items: center;
@@ -304,7 +396,7 @@
       background-color: var(--muted);
       transform: translateX(5px);
     }
-    
+
     .mobile-nav-link::after {
       content: '';
       position: absolute;
@@ -315,7 +407,7 @@
       background-color: var(--primary);
       transition: width 0.3s ease;
     }
-    
+
     .mobile-nav-link:hover::after {
       width: 30%;
     }
@@ -332,7 +424,7 @@
       transform: translateX(5px) scale(1.02);
       box-shadow: 0 4px 8px rgba(173, 110, 245, 0.15);
     }
-    
+
     .mobile-menu-header {
       display: flex;
       align-items: center;
@@ -341,14 +433,14 @@
       border-bottom: 1px solid var(--border);
       margin-bottom: 1rem;
     }
-    
+
     .mobile-menu-logo {
       font-family: 'Pacifico', cursive;
       font-size: 1.5rem;
       color: var(--primary);
       text-decoration: none;
     }
-    
+
     .mobile-menu-close {
       background: none;
       border: none;
@@ -362,7 +454,7 @@
       border-radius: 50%;
       transition: all 0.2s ease;
     }
-    
+
     .mobile-menu-close:hover {
       background-color: var(--muted);
       color: var(--foreground);
@@ -444,7 +536,7 @@
       padding: 0.5rem 0;
       transition: color 0.3s;
     }
-    
+
     .navbar-link:hover {
       color: var(--primary);
     }
@@ -452,7 +544,7 @@
     .navbar-link.active {
       color: var(--primary);
     }
-    
+
     .navbar-link::after {
       content: '';
       position: absolute;
@@ -463,7 +555,7 @@
       background-color: var(--primary);
       transition: width 0.3s;
     }
-    
+
     .navbar-link:hover::after {
       width: 100%;
     }
@@ -485,17 +577,17 @@
       cursor: pointer;
       border: none;
     }
-    
+
     .button:hover, .btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-    
+
     .button:active, .btn:active {
       transform: translateY(0);
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
-    
+
     .btn-primary {
       background-color: var(--primary);
       color: var(--primary-foreground);
@@ -514,6 +606,25 @@
 
     .btn-outline:hover {
       background-color: var(--muted);
+    }
+
+    /* Profile Icon Styles */
+    .profile-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba(173, 110, 245, 0.2);
+      color: #ad6ef5;
+      transition: all 0.3s ease;
+    }
+
+    .profile-icon:hover {
+      background-color: rgba(173, 110, 245, 0.3);
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(173, 110, 245, 0.2);
     }
 
     .btn-sm {
@@ -614,7 +725,7 @@
       font-weight: 600;
       margin-bottom: 1rem;
     }
-    
+
     .glass {
       background: rgba(255, 255, 255, 0.4);
       backdrop-filter: blur(10px);
@@ -745,7 +856,7 @@
       margin: 1rem 0;
       transition: transform 0.3s ease;
     }
-    
+
     .product-card:hover {
       transform: translateY(-10px);
     }
@@ -896,129 +1007,12 @@
     .add-to-cart-btn {
       flex: 1;
     }
-    
+
     .view-cart-btn {
       white-space: nowrap;
     }
 
-    footer, .footer {
-      background-color: #4F9C67;
-      color: #ffffff;
-      text-align: center;
-      padding: 2rem 1rem;
-      border-top: 4px solid #F3D749;
-      margin-top: auto;
-    }
 
-    .footer-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-    }
-
-    .footer-logo {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 1rem;
-      display: inline-block;
-    }
-
-    .footer-about {
-      max-width: 300px;
-      margin-bottom: 1rem;
-      color: var(--muted-foreground);
-    }
-
-    .footer-socials {
-      display: flex;
-      gap: 1rem;
-    }
-
-    .social-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background-color: var(--muted);
-      color: var(--foreground);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .social-icon:hover {
-      background-color: var(--primary);
-      color: var(--primary-foreground);
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(173, 110, 245, 0.3);
-    }
-
-    .footer-title {
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-    }
-
-    .footer-links {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    footer a, .footer-link {
-      color: #F3D749;
-      margin: 0 0.5rem;
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    footer a:hover, .footer-link:hover {
-      color: #ffffff;
-      text-decoration: underline;
-    }
-
-    .footer-newsletter p {
-      color: var(--muted-foreground);
-      margin-bottom: 1rem;
-    }
-
-    .newsletter-form {
-      display: flex;
-    }
-
-    .newsletter-input {
-      flex-grow: 1;
-      padding: 0.75rem 1rem;
-      border: 1px solid var(--border);
-      border-right: none;
-      border-top-left-radius: var(--radius);
-      border-bottom-left-radius: var(--radius);
-      outline: none;
-    }
-
-    .newsletter-btn {
-      background-color: var(--primary);
-      color: var(--primary-foreground);
-      padding: 0.75rem 1rem;
-      border: none;
-      border-top-right-radius: var(--radius);
-      border-bottom-right-radius: var(--radius);
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .newsletter-btn:hover {
-      background-color: #9b55e0;
-      box-shadow: 0 3px 10px rgba(173, 110, 245, 0.2);
-    }
-
-    .copyright {
-      text-align: center;
-      padding: 1.5rem 0;
-      border-top: 1px solid var(--border);
-      color: var(--muted-foreground);
-      font-size: 0.875rem;
-    }
 
     /* Quick View Modal */
     .modal-overlay {
@@ -1037,7 +1031,7 @@
       transition: all 0.3s ease;
       backdrop-filter: blur(4px);
     }
-    
+
     @keyframes floating {
       0% {
         transform: translateY(0);
@@ -1049,7 +1043,7 @@
         transform: translateY(0);
       }
     }
-    
+
     @keyframes pulse {
       0% {
         transform: scale(1);
@@ -1416,17 +1410,17 @@
         flex-direction: column;
         align-items: flex-start;
       }
-      
+
       nav a {
         display: block;
         margin: 0.5rem 0;
       }
-      
+
       .button, .btn {
         width: 100%;
         margin-top: 1rem;
       }
-      
+
       .toolbar {
         flex-direction: column;
         align-items: stretch;
@@ -1435,10 +1429,6 @@
 
       .navbar-links {
         display: none;
-      }
-
-      .footer-container {
-        grid-template-columns: 1fr;
       }
     }
 
@@ -1473,9 +1463,64 @@
         display: block;
       }
     }
-    
+
     /* Remix Icons Fix */
     :where([class^="ri-"])::before { content: "\f3c2"; }
+
+    /* Header photo styles */
+    .header-photo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 25px 0 15px;
+      width: 70px;
+      height: 70px;
+      flex-shrink: 0;
+    }
+
+    .header-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 50%;
+      background-color: white;
+      padding: 2px;
+    }
+
+    /* Override navbar-content styles */
+    .navbar-content {
+      display: flex !important;
+      justify-content: flex-start !important;
+      align-items: center !important;
+      height: 4rem !important;
+      position: relative !important;
+      padding: 0.5rem 0 !important;
+    }
+
+    /* Override logo styles */
+    .logo {
+      font-weight: bold !important;
+      font-size: 1.5rem !important;
+      color: var(--primary) !important;
+      min-width: 220px !important;
+      text-align: left !important;
+      margin-right: auto !important;
+      display: inline-block !important;
+      padding: 0 15px !important;
+    }
+
+    @media (min-width: 768px) {
+      .header-photo-container {
+        width: 80px;
+        height: 80px;
+        margin: 0 30px 0 20px;
+      }
+
+      .logo {
+        font-size: 1.5rem !important;
+        min-width: 250px !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1490,12 +1535,15 @@
             <span class="hamburger-line"></span>
           </div>
         </button>
+        <div class="header-photo-container">
+          <img src="image/no background.png" alt="Header Photo" class="header-photo">
+        </div>
         <a href="#" class="logo" style="font-family: 'Pacifico', cursive; color: var(--primary);">Dairy-Lift</a>
         <nav class="desktop-nav">
           <a href="home_page.html" class="nav-link">Home</a>
           <a href="dashboard.html" class="nav-link">Dashboard</a>
           <a href="store.html" class="nav-link">Store</a>
-          <a href="filesforbuycattle/dist/index.html" class="nav-link">Buy Cattle</a>
+          <a href="admin-dashboard.html" class="nav-link">Admin</a>
         </nav>
         <div class="navbar-actions">
           <a href="watchliststore.html" class="btn btn-icon">
@@ -1527,6 +1575,31 @@
             </svg>
           </button>
         </div>
+        <a href="filesforbuycattle/dist/index.html" class="mobile-nav-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span style="margin-left: 10px;">Buy Cattle</span>
+        </a>
+        <a href="biogas/home.html" class="mobile-nav-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span style="margin-left: 10px;">Bio-Gas</span>
+        </a>
+
+        <a href="farm-vista-scheduler-flow/dist/index.html" class="mobile-nav-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span style="margin-left: 10px;">Visit Farm</span>
+        </a>
         <a href="navhome.html" class="mobile-nav-link">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
@@ -1535,36 +1608,12 @@
           </svg>
           <span style="margin-left: 10px;">Insurance</span>
         </a>
-        <a href="farm-vista-scheduler-flow/dist/index.html" class="mobile-nav-link">
+        <a href="admin-dashboard.html" class="mobile-nav-link">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
             <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
             <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
           </svg>
-          <span style="margin-left: 10px;">Visit Farm</span>
-        </a>
-        <a href="home_page.html" class="mobile-nav-link">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-          <span style="margin-left: 10px;">Home</span>
-        </a>
-        <a href="dashboard.html" class="mobile-nav-link">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
-          </svg>
-          <span style="margin-left: 10px;">Dashboard</span>
-        </a>
-        <a href="store.html" class="mobile-nav-link">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-          </svg>
-          <span style="margin-left: 10px;">Store</span>
+          <span style="margin-left: 10px;">Register Cattle</span>
         </a>
         <a href="#" class="mobile-nav-link">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
@@ -1581,7 +1630,6 @@
           </svg>
           <span style="margin-left: 10px;">Support</span>
         </a>
-        
         <a href="login.html" class="mobile-nav-link mobile-nav-link-primary">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
@@ -1593,7 +1641,7 @@
       </div>
       </div>
     </header>
-      
+
   <main class="main">
     <div class="container">
       <div class="page-header">
@@ -1609,7 +1657,7 @@
         <aside class="store-sidebar" id="store-sidebar">
           <div class="card filter-card">
             <h3 class="card-title">Filter Products</h3>
-            
+
             <div class="filter-section">
               <h4 class="filter-section-title">Categories</h4>
               <div class="checkbox-group">
@@ -1633,7 +1681,7 @@
                 </label>
               </div>
             </div>
-            
+
             <div class="filter-section">
               <h4 class="filter-section-title">Price Range</h4>
               <input type="range" min="0" max="20" value="20" class="range-slider" id="price-range">
@@ -1642,7 +1690,7 @@
                 <span id="price-range-value">$20</span>
               </div>
             </div>
-            
+
             <div class="filter-section">
               <h4 class="filter-section-title">Availability</h4>
               <div class="checkbox-group">
@@ -1654,12 +1702,12 @@
                 </label>
               </div>
             </div>
-            
+
             <div class="filter-section">
               <h4 class="filter-section-title">Rating</h4>
               <div class="checkbox-group">
                 <label class="checkbox-item">
-                  <input type="checkbox" class="checkbox rating-filter" value="5" checked> 
+                  <input type="checkbox" class="checkbox rating-filter" value="5" checked>
                   <div class="rating-stars">
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
@@ -1669,7 +1717,7 @@
                   </div>
                 </label>
                 <label class="checkbox-item">
-                  <input type="checkbox" class="checkbox rating-filter" value="4" checked> 
+                  <input type="checkbox" class="checkbox rating-filter" value="4" checked>
                   <div class="rating-stars">
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
@@ -1679,7 +1727,7 @@
                   </div>
                 </label>
                 <label class="checkbox-item">
-                  <input type="checkbox" class="checkbox rating-filter" value="3" checked> 
+                  <input type="checkbox" class="checkbox rating-filter" value="3" checked>
                   <div class="rating-stars">
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
@@ -1694,13 +1742,13 @@
             <button class="btn btn-primary" id="apply-filters">Apply Filters</button>
           </div>
         </aside>
-        
+
         <div class="store-main">
           <div class="search-bar">
             <i class="fas fa-search search-icon"></i>
             <input type="search" class="search-input" id="search-products" placeholder="Search products...">
           </div>
-          
+
           <div class="toolbar">
             <div class="category-tags">
               <span class="category-tag active" data-category="all">All Products</span>
@@ -1710,7 +1758,7 @@
               <span class="category-tag" data-category="butter">Butter</span>
               <span class="category-tag" data-category="icecream">Ice Cream</span>
             </div>
-            
+
             <select class="sort-select" id="sort-products">
               <option value="featured">Featured</option>
               <option value="price-low">Price: Low to High</option>
@@ -1719,7 +1767,7 @@
               <option value="newest">Newest</option>
             </select>
           </div>
-          
+
           <div class="product-grid" id="product-grid">
             <!-- Products will be loaded here via JavaScript -->
           </div>
@@ -1728,65 +1776,7 @@
     </div>
   </main>
 
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-container">
-        <div class="footer-column">
-          <span class="footer-logo">
-            <i class="fas fa-cow"></i> Dairy-Lift
-          </span>
-          <p class="footer-about">
-            Dairy-Lift combines traditional farming with modern technology to create a transparent, profitable, and sustainable investment opportunity.
-          </p>
-          <div class="footer-socials">
-            <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
-          </div>
-        </div>
-        
-        <div class="footer-column">
-          <h3 class="footer-title">Quick Links</h3>
-          <div class="footer-links">
-            <a href="home_page.html" class="footer-link">Home</a>
-            <a href="aboutus.html" class="footer-link">About Us</a>
-            <a href="#" class="footer-link">How It Works</a>
-            <a href="#" class="footer-link">Investment Plans</a>
-            <a href="#" class="footer-link">FAQ</a>
-            <a href="#" class="footer-link">Contact</a>
-          </div>
-        </div>
-        
-        <div class="footer-column">
-          <h3 class="footer-title">Useful Links</h3>
-          <div class="footer-links">
-            <a href="#" class="footer-link">Terms of Service</a>
-            <a href="#" class="footer-link">Privacy Policy</a>
-            <a href="#" class="footer-link">Cookie Policy</a>
-            <a href="#" class="footer-link">Investor Relations</a>
-            <a href="#" class="footer-link">Careers</a>
-            <a href="#" class="footer-link">Blog</a>
-          </div>
-        </div>
-        
-        <div class="footer-column">
-          <h3 class="footer-title">Newsletter</h3>
-          <p>Subscribe to our newsletter for the latest updates on our dairy farm investments and exclusive offers.</p>
-          <form class="newsletter-form">
-            <input type="email" class="newsletter-input" placeholder="Your email address">
-            <button type="submit" class="newsletter-btn">
-              <i class="fas fa-paper-plane"></i>
-            </button>
-          </form>
-        </div>
-      </div>
-      
-      <div class="copyright">
-        <p>&copy; 2023 Dairy-Lift. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
+
 
   <!-- Quick View Modal -->
   <div class="modal-overlay" id="quick-view-modal">
@@ -1827,8 +1817,40 @@
   </div>
 
   <script>
-    // Product Data
-    const productsData = [
+    // Check if products exist in localStorage from manage_store.html
+    let productsData = [];
+
+    // Try to load products from localStorage first
+    const storedProducts = localStorage.getItem('dairyvestProducts');
+
+    if (storedProducts) {
+      // Convert the stored products to the format expected by the store page
+      const managedProducts = JSON.parse(storedProducts);
+
+      productsData = managedProducts.map(product => {
+        return {
+          id: product.id.toString(),
+          name: product.name,
+          description: product.category.charAt(0).toUpperCase() + product.category.slice(1) + ' product from our dairy farm.',
+          price: product.price,
+          rating: Math.floor(Math.random() * 2) + 4, // Random rating between 4-5
+          imageUrl: product.imageUrl || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80',
+          inStock: product.status !== 'out-of-stock',
+          category: product.category,
+          featured: Math.random() > 0.7, // Randomly set some products as featured
+          nutritionInfo: {
+            calories: '150 per serving',
+            fat: '8g',
+            protein: '8g',
+            calcium: '30% DV'
+          }
+        };
+      });
+    }
+
+    // If no products were found in localStorage or the array is empty, use default products
+    if (productsData.length === 0) {
+      productsData = [
       {
         id: 'prod-001',
         name: 'Fresh Whole Milk',
@@ -2320,7 +2342,7 @@
           protein: '4g',
           calcium: '15% DV'
         }
-      }, 
+      },
       {
         id: 'prod-008',
         name: 'Mango Ice Cream',
@@ -2338,7 +2360,7 @@
           calcium: '15% DV'
         }
       },
-     
+
       {
         id: 'prod-008',
         name: 'ButterScotch',
@@ -2459,6 +2481,7 @@
         }
       }
     ];
+    }
 
     // Utility functions
     function formatPrice(price) {
@@ -2478,6 +2501,7 @@
       constructor() {
         this.items = [];
         this.loadFromStorage();
+        this.syncWithUpdatedProducts(); // Sync cart with any updated products
         this.initEventListeners();
         this.updateCartDisplay();
       }
@@ -2487,6 +2511,31 @@
         if (savedCart) {
           this.items = JSON.parse(savedCart);
         }
+      }
+
+      // Sync cart with updated products from manage_store.html
+      syncWithUpdatedProducts() {
+        // Remove any cart items that no longer exist in the products list
+        this.items = this.items.filter(item => {
+          return productsData.some(product => product.id === item.id);
+        });
+
+        // Update product details in cart items
+        this.items.forEach(item => {
+          const product = productsData.find(p => p.id === item.id);
+          if (product) {
+            item.name = product.name;
+            item.price = product.price;
+            item.imageUrl = product.imageUrl;
+            // If product is now out of stock, remove it from cart
+            if (!product.inStock) {
+              this.items = this.items.filter(i => i.id !== item.id);
+            }
+          }
+        });
+
+        // Save the updated cart
+        this.saveToStorage();
       }
 
       saveToStorage() {
@@ -2513,7 +2562,7 @@
         this.saveToStorage();
         this.updateCartDisplay();
         this.showAddToCartNotification(product.name);
-        
+
         // Show the View Cart button on the product card
         const productCard = document.querySelector(`.product-card[data-id="${productId}"]`);
         if (productCard) {
@@ -2579,7 +2628,7 @@
           checkoutBtn.disabled = true;
         } else {
           let cartItemsHTML = '<div class="cart-items">';
-          
+
           this.items.forEach(item => {
             cartItemsHTML += `
               <div class="cart-item" data-id="${item.id}">
@@ -2658,14 +2707,14 @@
             </div>
           </div>
         `;
-        
+
         document.body.appendChild(notification);
-        
+
         // Show notification
         setTimeout(() => {
           notification.style.transform = 'translateY(0)';
         }, 10);
-        
+
         // Hide and remove notification
         setTimeout(() => {
           notification.style.transform = 'translateY(100px)';
@@ -2695,8 +2744,8 @@
 
         // Close cart when clicking outside
         document.addEventListener('click', (event) => {
-          if (cartDrawer.classList.contains('open') && 
-              !cartDrawer.contains(event.target) && 
+          if (cartDrawer.classList.contains('open') &&
+              !cartDrawer.contains(event.target) &&
               !cartToggle.contains(event.target)) {
             cartDrawer.classList.remove('open');
           }
@@ -2763,7 +2812,7 @@
         this.showOutOfStock = false;
         this.ratings = [3, 4, 5];
         this.searchQuery = '';
-        
+
         this.initEventListeners();
         this.render();
       }
@@ -2881,8 +2930,8 @@
 
         // Apply search filter
         if (this.searchQuery) {
-          filtered = filtered.filter(product => 
-            product.name.toLowerCase().includes(this.searchQuery) || 
+          filtered = filtered.filter(product =>
+            product.name.toLowerCase().includes(this.searchQuery) ||
             product.description.toLowerCase().includes(this.searchQuery) ||
             product.category.toLowerCase().includes(this.searchQuery)
           );
@@ -2914,7 +2963,7 @@
 
       render() {
         const productGrid = document.getElementById('product-grid');
-        
+
         if (this.filteredProducts.length === 0) {
           productGrid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 0;">
@@ -2927,16 +2976,16 @@
         }
 
         let productsHTML = '';
-        
+
         this.filteredProducts.forEach(product => {
           const isInWishlist = this.wishlist.isInWishlist(product.id);
-          
+
           productsHTML += `
             <div class="card product-card" data-id="${product.id}">
               <div class="product-image-container">
                 <img src="${product.imageUrl}" alt="${product.name}" class="product-image">
-                ${product.inStock ? 
-                  (product.featured ? '<span class="product-badge">Featured</span>' : '') : 
+                ${product.inStock ?
+                  (product.featured ? '<span class="product-badge">Featured</span>' : '') :
                   '<span class="product-badge out-of-stock">Out of Stock</span>'
                 }
                 <div class="product-actions">
@@ -2975,9 +3024,9 @@
             </div>
           `;
         });
-        
+
         productGrid.innerHTML = productsHTML;
-        
+
         // Add event listeners to product cards
         document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
           btn.addEventListener('click', (event) => {
@@ -3013,7 +3062,7 @@
         const isInWishlist = this.wishlist.isInWishlist(productId);
         const modal = document.getElementById('quick-view-modal');
         const modalContent = document.getElementById('quick-view-content');
-        
+
         modalContent.innerHTML = `
           <div class="modal-image">
             <img src="${product.imageUrl}" alt="${product.name}">
@@ -3028,7 +3077,7 @@
             </div>
             <p class="modal-product-price">${formatPrice(product.price)}</p>
             <p class="modal-product-description">${product.description}</p>
-            
+
             <div class="modal-product-meta">
               <div class="meta-item">
                 <span class="meta-label">Category:</span>
@@ -3052,13 +3101,13 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="quantity-selector">
               <button class="quantity-btn decrease-quantity">-</button>
               <input type="number" class="quantity-input" value="1" min="1" max="99" id="quick-view-quantity">
               <button class="quantity-btn increase-quantity">+</button>
             </div>
-            
+
             <div class="modal-actions">
               <button class="btn btn-primary quick-view-add-to-cart" data-id="${product.id}" ${!product.inStock ? 'disabled' : ''}>
                 <i class="fas fa-shopping-cart"></i> Add to Cart
@@ -3069,58 +3118,58 @@
             </div>
           </div>
         `;
-        
+
         modal.classList.add('open');
-        
+
         // Add event listeners for the quick view modal
         const closeModal = document.getElementById('close-modal');
         closeModal.addEventListener('click', () => {
           modal.classList.remove('open');
         });
-        
+
         // Close modal when clicking outside
         modal.addEventListener('click', (event) => {
           if (event.target === modal) {
             modal.classList.remove('open');
           }
         });
-        
+
         // Quantity buttons
         const quantityInput = document.getElementById('quick-view-quantity');
         const decreaseBtn = document.querySelector('.decrease-quantity');
         const increaseBtn = document.querySelector('.increase-quantity');
-        
+
         decreaseBtn.addEventListener('click', () => {
           let value = parseInt(quantityInput.value);
           if (value > 1) {
             quantityInput.value = value - 1;
           }
         });
-        
+
         increaseBtn.addEventListener('click', () => {
           let value = parseInt(quantityInput.value);
           quantityInput.value = value + 1;
         });
-        
+
         // Add to cart button
         const addToCartBtn = document.querySelector('.quick-view-add-to-cart');
         addToCartBtn.addEventListener('click', () => {
           if (!product.inStock) return;
-          
+
           const quantity = parseInt(quantityInput.value);
           this.cart.addItem(product.id, quantity);
           modal.classList.remove('open');
         });
-        
+
         // Add to wishlist button
         const addToWishlistBtn = document.querySelector('.quick-view-add-to-wishlist');
         addToWishlistBtn.addEventListener('click', () => {
           const isNowInWishlist = this.wishlist.toggleItem(product.id);
           addToWishlistBtn.innerHTML = `
-            <i class="fa${isNowInWishlist ? 's' : 'r'} fa-heart"></i> 
+            <i class="fa${isNowInWishlist ? 's' : 'r'} fa-heart"></i>
             ${isNowInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
           `;
-          
+
           // Also update the heart icon on the product card
           const wishlistBtn = document.querySelector(`.wishlist-btn[data-id="${product.id}"]`);
           if (wishlistBtn) {
@@ -3136,7 +3185,7 @@
       const cart = new Cart();
       const wishlist = new Wishlist();
       const productListing = new ProductListing(cart, wishlist);
-      
+
       // Mobile Menu Toggle
       const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
       const mobileMenu = document.getElementById('mobile-menu');
@@ -3152,25 +3201,25 @@
           mobileMenuOverlay.classList.add('active');
           mobileMenuToggle.classList.add('active');
           body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
-          
+
           // Add a subtle ripple effect on click
           const ripple = document.createElement('span');
           ripple.classList.add('menu-toggle-ripple');
           mobileMenuToggle.appendChild(ripple);
-          
+
           // Position the ripple where the click happened
           const rect = mobileMenuToggle.getBoundingClientRect();
           const size = Math.max(rect.width, rect.height) * 2;
-          
+
           ripple.style.width = ripple.style.height = `${size}px`;
           ripple.style.left = `${-size/4}px`;
           ripple.style.top = `${-size/4}px`;
-          
+
           // Remove the ripple after animation completes
           setTimeout(() => {
             ripple.remove();
           }, 600);
-          
+
           // Add entrance animation to each nav link
           const navLinks = mobileMenu.querySelectorAll('.mobile-nav-link');
           navLinks.forEach((link, index) => {
@@ -3178,7 +3227,7 @@
             link.style.transform = 'translateX(-10px)';
             link.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
             link.style.transitionDelay = `${0.05 * (index + 1)}s`;
-            
+
             setTimeout(() => {
               link.style.opacity = '1';
               link.style.transform = 'translateX(0)';
@@ -3206,7 +3255,7 @@
 
         // Close menu when clicking the close button
         mobileMenuClose.addEventListener('click', closeMobileMenu);
-        
+
         // Close menu when clicking the overlay
         mobileMenuOverlay.addEventListener('click', closeMobileMenu);
 
@@ -3215,7 +3264,7 @@
         mobileLinks.forEach(link => {
           link.addEventListener('click', closeMobileMenu);
         });
-        
+
         // Close mobile menu when pressing Escape key
         document.addEventListener('keydown', function(event) {
           if (event.key === 'Escape' && mobileMenu.classList.contains('active')) {
@@ -3225,5 +3274,174 @@
       }
     });
   </script>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div>
+          <a href="#" class="text-primary font-['Pacifico'] text-2xl"
+            >Dairy-Lift</a
+          >
+          <p class="mt-4 text-gray-400">
+            Transforming dairy farming into a premium investment opportunity
+            with transparent operations and consistent returns.
+          </p>
+          <div class="mt-6 flex space-x-4">
+            <a
+              href="#"
+              class="w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full hover:bg-primary transition-colors"
+            >
+              <i class="ri-facebook-fill"></i>
+            </a>
+            <a
+              href="#"
+              class="w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full hover:bg-primary transition-colors"
+            >
+              <i class="ri-twitter-x-fill"></i>
+            </a>
+            <a
+              href="https://www.instagram.com/dairy_lift/"
+              class="w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full hover:bg-primary transition-colors"
+            >
+              <i class="ri-instagram-fill"></i>
+            </a>
+            <a
+              href="#"
+              class="w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full hover:bg-primary transition-colors"
+            >
+              <i class="ri-linkedin-fill"></i>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+          <ul class="space-y-3">
+            <li>
+              <a
+                href="#"
+                class="text-gray-400 hover:text-white transition-colors"
+                >About Us</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="text-gray-400 hover:text-white transition-colors"
+                >Investment Options</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="text-gray-400 hover:text-white transition-colors"
+                >Performance Reports</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="text-gray-400 hover:text-white transition-colors"
+                >Farm Tours</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="text-gray-400 hover:text-white transition-colors"
+                >Testimonials</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="text-gray-400 hover:text-white transition-colors"
+                >FAQs</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+          <ul class="space-y-3">
+            <li class="flex items-start">
+              <div
+                class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5"
+              >
+                <i class="ri-map-pin-line"></i>
+              </div>
+              <span class="ml-3 text-gray-400"
+                >123 Dairy Farm Road, Green Valley, CA 94535</span
+              >
+            </li>
+            <li class="flex items-start">
+              <div
+                class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5"
+              >
+                <i class="ri-phone-line"></i>
+              </div>
+              <span class="ml-3 text-gray-400">+1 (555) 123-4567</span>
+            </li>
+            <li class="flex items-start">
+              <div
+                class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5"
+              >
+                <i class="ri-mail-line"></i>
+              </div>
+              <span class="ml-3 text-gray-400">dairylift@gmail.com</span>
+            </li>
+            <li class="flex items-start">
+              <div
+                class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5"
+              >
+                <i class="ri-time-line"></i>
+              </div>
+              <span class="ml-3 text-gray-400">Mon-Fri: 9AM-5PM (PST)</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Newsletter</h3>
+          <p class="text-gray-400 mb-4">
+            Subscribe to receive updates on dairy market trends and investment
+            opportunities.
+          </p>
+          <form class="space-y-4">
+            <div>
+              <input
+                type="email"
+                placeholder="Your email address"
+                class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-primary text-white"
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-primary hover:bg-primary/90 text-white py-2 font-medium !rounded-button whitespace-nowrap"
+            >
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </div>
+      <div
+        class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center"
+      >
+        <p class="text-gray-400 text-sm">
+          © 2025 Dairy-Lift. All rights reserved.
+        </p>
+        <div class="mt-4 md:mt-0 flex space-x-6">
+          <a href="#" class="text-gray-400 hover:text-white text-sm"
+            >Privacy Policy</a
+          >
+          <a href="#" class="text-gray-400 hover:text-white text-sm"
+            >Terms of Service</a
+          >
+          <a href="#" class="text-gray-400 hover:text-white text-sm"
+            >Cookie Policy</a
+          >
+        </div>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>

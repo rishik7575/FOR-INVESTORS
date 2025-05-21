@@ -3,39 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agri-Lift - Register Your Cattle</title>
-  <meta name="description" content="Register your cattle for insurance coverage with Agri-Lift." />
+  <title>Dairy-Lift - Register Your Cattle</title>
+  <meta name="description" content="Register your cattle for insurance coverage with Dairy-Lift." />
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Additional Resources -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#ad6ef5",
+            secondary: "#8A2BE2",
+          },
+          borderRadius: {
+            none: "0px",
+            sm: "4px",
+            DEFAULT: "8px",
+            md: "12px",
+            lg: "16px",
+            xl: "20px",
+            "2xl": "24px",
+            "3xl": "32px",
+            full: "9999px",
+            button: "8px",
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+          },
+        },
+      },
+    };
+  </script>
   <style>
     /* Root Variables */
     :root {
-      --background: #fff;
-      --foreground: #1F2937;
-      --primary: #4D7C0F; /* Emerald green */
-      --primary-foreground: #fff;
-      --primary-hover: #65a30d;
-      --muted: #F3F4F6;
-      --muted-foreground: #6B7280;
-      --border: #E5E7EB;
-      --input: #E5E7EB;
-      --ring: #4D7C0F;
+      --primary: #ad6ef5;
+      --primary-foreground: #f8fafc;
+      --primary-light: rgba(173, 110, 245, 0.2);
+      --background: #ffffff;
+      --foreground: #020617;
+      --muted: #f1f5f9;
+      --muted-foreground: #64748b;
+      --border: #e2e8f0;
       --radius: 0.5rem;
     }
 
     /* Base Styles */
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       color: var(--foreground);
-      background-color: #f9fafb;
+      background-color: var(--background);
       line-height: 1.5;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
     }
 
     /* Typography */
@@ -47,10 +97,400 @@
     /* Layout */
     .container {
       width: 100%;
-      max-width: 1280px;
-      margin-left: auto;
-      margin-right: auto;
+      max-width: 1200px;
+      margin: 0 auto;
       padding: 0 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .container {
+        padding: 0 1.5rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .container {
+        padding: 0 2rem;
+      }
+    }
+
+    /* Navbar Styles */
+    .navbar {
+      background-color: var(--background);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .navbar-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 4rem;
+    }
+
+    .logo {
+      font-weight: bold;
+      font-size: 1.5rem;
+      color: var(--primary);
+      min-width: 180px;
+      text-align: left;
+      margin-right: auto;
+      display: inline-block;
+    }
+
+    .desktop-nav {
+      display: none;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .navbar-actions {
+      display: none;
+    }
+
+    .mobile-menu-toggle {
+      background: none;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      padding: 0.5rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      overflow: hidden;
+      z-index: 50;
+    }
+    
+    .mobile-menu-toggle:hover {
+      background-color: var(--primary-light);
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(173, 110, 245, 0.2);
+    }
+    
+    .mobile-menu-toggle:active {
+      transform: scale(0.95);
+    }
+    
+    .hamburger-lines {
+      width: 22px;
+      height: 18px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    
+    .hamburger-line {
+      display: block;
+      height: 2px;
+      width: 100%;
+      background-color: var(--primary);
+      border-radius: 10px;
+      transition: all 0.3s ease-in-out;
+      transform-origin: center;
+    }
+    
+    .mobile-menu-toggle.active .hamburger-line:nth-child(1) {
+      transform: translateY(8px) rotate(45deg);
+      width: 22px;
+    }
+    
+    .mobile-menu-toggle.active .hamburger-line:nth-child(2) {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    
+    .mobile-menu-toggle.active .hamburger-line:nth-child(3) {
+      transform: translateY(-8px) rotate(-45deg);
+      width: 22px;
+    }
+    
+    .mobile-menu-toggle::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: var(--primary-light);
+      border-radius: 50%;
+      z-index: -1;
+      transform: scale(0);
+      transition: transform 0.3s ease;
+    }
+    
+    .mobile-menu-toggle:hover::after {
+      transform: scale(1);
+    }
+    
+    .menu-toggle-ripple {
+      position: absolute;
+      background-color: rgba(173, 110, 245, 0.3);
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+    
+    @keyframes ripple {
+      to {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100vh;
+      background-color: var(--background);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      padding: 1.5rem 0;
+      overflow-y: auto;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+    }
+
+    .mobile-menu.active {
+      transform: translateX(280px);
+    }
+    
+    .mobile-menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      backdrop-filter: blur(2px);
+    }
+    
+    .mobile-menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .mobile-nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.85rem 1.5rem;
+      color: var(--foreground);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      margin: 0.25rem 0.75rem;
+      border-radius: 0.5rem;
+    }
+
+    .mobile-nav-link:hover {
+      background-color: var(--muted);
+      transform: translateX(5px);
+    }
+    
+    .mobile-nav-link::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 2px;
+      width: 0;
+      background-color: var(--primary);
+      transition: width 0.3s ease;
+    }
+    
+    .mobile-nav-link:hover::after {
+      width: 30%;
+    }
+
+    .mobile-nav-link-primary {
+      color: var(--primary);
+      font-weight: 600;
+      background-color: var(--primary-light);
+      margin-top: 0.75rem;
+    }
+
+    .mobile-nav-link-primary:hover {
+      background-color: var(--primary-light);
+      transform: translateX(5px) scale(1.02);
+      box-shadow: 0 4px 8px rgba(173, 110, 245, 0.15);
+    }
+    
+    .mobile-menu-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+    
+    .mobile-menu-logo {
+      font-family: 'Pacifico', cursive;
+      font-size: 1.5rem;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .mobile-menu-close {
+      background: none;
+      border: none;
+      color: var(--muted-foreground);
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+    
+    .mobile-menu-close:hover {
+      background-color: var(--muted);
+      color: var(--foreground);
+    }
+
+    @media (min-width: 768px) {
+      .desktop-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2.5rem;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
+      }
+
+      .navbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .nav-link {
+        position: relative;
+        padding: 0.5rem 0;
+        color: var(--foreground);
+        transition: color 0.3s;
+      }
+
+      .nav-link:hover {
+        color: var(--primary);
+      }
+
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: var(--primary);
+        transition: width 0.3s;
+      }
+
+      .nav-link:hover::after {
+        width: 100%;
+      }
+
+      .icon-link {
+        padding: 0.5rem;
+        color: var(--foreground);
+        transition: color 0.3s;
+      }
+
+      .icon-link:hover {
+        color: var(--primary);
+      }
+    }
+    
+    /* Remix Icons Fix */
+    :where([class^="ri-"])::before { content: "\f3c2"; }
+    
+    /* Button Styles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+    }
+
+    .btn-primary:hover {
+      background-color: #9b55e0;
+      box-shadow: 0 3px 10px rgba(173, 110, 245, 0.2);
+    }
+
+    .btn-secondary {
+      background-color: white;
+      color: var(--foreground);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--muted);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--foreground);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--muted);
+    }
+
+    .btn-outline-primary {
+      background-color: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .btn-outline-primary:hover {
+      background-color: var(--primary-light);
+    }
+
+    .btn-lg {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+    }
+
+    .btn svg {
+      margin-right: 0.5rem;
+      width: 16px;
+      height: 16px;
     }
 
     .flex {
@@ -125,1154 +565,678 @@
       padding-top: 3rem;
       padding-bottom: 3rem;
     }
-
-    .px-4 {
-      padding-left: 1rem;
-      padding-right: 1rem;
-    }
-
-    .px-6 {
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    .text-sm {
-      font-size: 0.875rem;
-    }
-
-    .text-base {
-      font-size: 1rem;
-    }
-
-    .text-lg {
-      font-size: 1.125rem;
-    }
-
-    .text-xl {
-      font-size: 1.25rem;
-    }
-
-    .text-2xl {
-      font-size: 1.5rem;
-    }
-
-    .text-3xl {
-      font-size: 1.875rem;
-    }
-
-    .font-medium {
-      font-weight: 500;
-    }
-
-    .font-semibold {
-      font-weight: 600;
-    }
-
-    .font-bold {
-      font-weight: 700;
-    }
-
-    .text-gray-500 {
-      color: #6B7280;
-    }
-
-    .text-gray-600 {
-      color: #4B5563;
-    }
-
-    .text-gray-700 {
-      color: #374151;
-    }
-
-    .text-white {
-      color: #fff;
-    }
-
-    .text-emerald-600 {
-      color: #059669;
-    }
-
-    .text-emerald-700 {
-      color: #047857;
-    }
-
-    /* Header and Navigation */
-    .header {
-      background-color: white;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    .nav-button {
-      position: fixed;
-      top: 1rem;
-      left: 1rem;
-      z-index: 50;
-      background-color: white;
-      color: #374151;
-      border: none;
-      border-radius: 9999px;
-      width: 2.5rem;
-      height: 2.5rem;
+    
+    /* Header photo styles */
+    .header-photo-container {
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-      transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+      margin: 0 25px 0 15px;
+      width: 70px;
+      height: 70px;
+      flex-shrink: 0;
     }
-
-    .nav-button:hover {
-      background-color: #f3f4f6;
-    }
-
-    /* Sidebar Navigation */
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      width: 0;
-      max-width: 20rem;
-      background-color: white;
-      box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
-      overflow-x: hidden;
-      transition: 0.3s;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sidebar.open {
-      width: 20rem;
-    }
-
-    .sidebar-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: none;
-      z-index: 90;
-    }
-
-    .sidebar-overlay.open {
-      display: block;
-    }
-
-    .sidebar-header {
-      padding: 1.5rem;
-      background-color: #f0fdf4;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .sidebar-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .sidebar-logo-bg {
-      background-color: var(--primary);
-      border-radius: 9999px;
-      padding: 0.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .sidebar-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .sidebar-description {
-      color: rgba(4, 120, 87, 0.7);
-      font-size: 0.875rem;
-    }
-
-    .sidebar-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1rem 0;
-    }
-
-    .sidebar-section-title {
-      padding: 0 1.5rem;
-      margin-bottom: 0.5rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #9CA3AF;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .sidebar-menu {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    .sidebar-link {
-      display: flex;
-      align-items: center;
-      padding: 0.75rem 1.5rem;
-      color: #4B5563;
-      text-decoration: none;
-      font-weight: 500;
-      transition: background-color 0.2s;
-    }
-
-    .sidebar-link:hover {
-      background-color: #f0fdf4;
-      color: var(--primary);
-    }
-
-    .sidebar-link svg {
-      margin-right: 0.75rem;
-    }
-
-    .sidebar-footer {
-      padding: 1.5rem;
-      border-top: 1px solid #e5e7eb;
-      text-align: center;
-    }
-
-    .sidebar-button {
-      display: block;
+    
+    .header-photo {
       width: 100%;
-      padding: 0.5rem 1rem;
-      background-color: var(--primary);
-      color: white;
-      text-align: center;
-      text-decoration: none;
-      border-radius: 0.375rem;
-      font-weight: 500;
-      transition: background-color 0.2s;
-    }
-
-    .sidebar-button:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .sidebar-copyright {
-      margin-top: 1rem;
-      font-size: 0.75rem;
-      color: #9CA3AF;
-    }
-
-    /* Main Content */
-    .main-content {
-      flex: 1;
-      padding: 3rem 0;
-    }
-
-    /* Form Styles */
-    .card {
+      height: 100%;
+      object-fit: contain;
+      border-radius: 50%;
       background-color: white;
-      border-radius: 0.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-      max-width: 64rem;
-      margin: 0 auto;
+      padding: 2px;
     }
-
-    .card-header {
-      padding: 1.5rem;
-      border-bottom: 1px solid var(--border);
+    
+    /* Override navbar-content styles */
+    .navbar-content {
+      display: flex !important;
+      justify-content: flex-start !important;
+      align-items: center !important;
+      height: 4rem !important;
+      position: relative !important;
+      padding: 0.5rem 0 !important;
     }
-
-    .card-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
+    
+    /* Override logo styles */
+    .logo {
+      font-weight: bold !important;
+      font-size: 1.5rem !important;
+      color: var(--primary) !important;
+      min-width: 220px !important;
+      text-align: left !important;
+      margin-right: auto !important;
+      display: inline-block !important;
+      padding: 0 15px !important;
     }
-
-    .card-description {
-      color: var(--muted-foreground);
-      font-size: 0.875rem;
+    
+    /* Override navbar-actions styles */
+    .navbar-actions {
+      display: flex !important;
+      align-items: center !important;
+      gap: 1rem !important;
     }
-
-    .card-content {
-      padding: 1.5rem;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
-
+    
     @media (min-width: 768px) {
-      .form-grid {
-        grid-template-columns: repeat(2, 1fr);
+      .header-photo-container {
+        width: 80px;
+        height: 80px;
+        margin: 0 30px 0 20px;
       }
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .label {
-      display: block;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--foreground);
-    }
-
-    .input, .select {
-      display: block;
-      width: 100%;
-      padding: 0.5rem 0.75rem;
-      line-height: 1.5;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background-color: white;
-      color: var(--foreground);
-      font-size: 1rem;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-
-    .input:focus, .select:focus {
-      outline: none;
-      border-color: var(--ring);
-      box-shadow: 0 0 0 2px rgba(77, 124, 15, 0.25);
-    }
-
-    .select {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-      background-position: right 0.5rem center;
-      background-repeat: no-repeat;
-      background-size: 1.5em 1.5em;
-      padding-right: 2.5rem;
-    }
-
-    .input-file {
-      padding: 0.375rem 0;
-    }
-
-    .input-file::-webkit-file-upload-button {
-      background-color: var(--muted);
-      border: 0;
-      color: var(--foreground);
-      cursor: pointer;
-      font-size: 0.875rem;
-      font-weight: 500;
-      margin-right: 1rem;
-      padding: 0.375rem 0.75rem;
-      border-radius: 0.25rem;
-    }
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.625rem 1.25rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      line-height: 1.25rem;
-      border-radius: var(--radius);
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .button-primary {
-      background-color: var(--primary);
-      color: white;
-    }
-
-    .button-primary:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .button-block {
-      display: flex;
-      width: 100%;
-    }
-
-    /* File Upload */
-    .file-drop-area {
-      border: 2px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s;
-    }
-
-    .file-drop-area:hover {
-      border-color: var(--primary);
-    }
-
-    .file-drop-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .file-preview {
-      margin-top: 1rem;
-      width: 100%;
-      max-width: 20rem;
-      border-radius: var(--radius);
-      object-fit: cover;
-    }
-
-    .file-list {
-      margin-top: 1rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-
-    .file-item {
-      display: flex;
-      align-items: center;
-      padding: 0.5rem 1rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .file-item:last-child {
-      border-bottom: none;
-    }
-
-    .file-item-name {
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-left: 0.5rem;
-    }
-
-    .file-item-remove {
-      color: #EF4444;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0.25rem;
-    }
-
-    /* Health History */
-    .health-history-card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 1rem;
-      overflow: hidden;
-    }
-
-    .health-history-card-content {
-      padding: 1rem;
-    }
-
-    .health-history-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-
-    .textarea {
-      display: block;
-      width: 100%;
-      min-height: 5rem;
-      padding: 0.5rem 0.75rem;
-      line-height: 1.5;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background-color: white;
-      color: var(--foreground);
-      font-size: 1rem;
-      font-family: inherit;
-      resize: vertical;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-
-    .textarea:focus {
-      outline: none;
-      border-color: var(--ring);
-      box-shadow: 0 0 0 2px rgba(77, 124, 15, 0.25);
-    }
-
-    /* Insurance Calculator */
-    .calculator-card {
-      background-color: white;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      margin-bottom: 1.5rem;
-      overflow: hidden;
-    }
-
-    .calculator-header {
-      padding: 1rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .calculator-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-
-    .calculator-description {
-      color: var(--muted-foreground);
-      font-size: 0.875rem;
-    }
-
-    .calculator-content {
-      padding: 1rem;
-    }
-
-    .calculator-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .calculator-note {
-      color: var(--muted-foreground);
-      font-size: 0.875rem;
-      margin-top: 0.5rem;
-    }
-
-    /* Toast Notification */
-    .toast-container {
-      position: fixed;
-      bottom: 1rem;
-      right: 1rem;
-      max-width: 24rem;
-      z-index: 50;
-    }
-
-    .toast {
-      background-color: white;
-      border-radius: var(--radius);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      padding: 1rem;
-      margin-top: 0.5rem;
-      display: flex;
-      align-items: flex-start;
-      overflow: hidden;
-      pointer-events: auto;
-      transform-origin: bottom right;
-      animation: toast-enter 0.3s ease;
-    }
-
-    .toast-hidden {
-      animation: toast-leave 0.2s ease forwards;
-    }
-
-    .toast-icon {
-      flex-shrink: 0;
-      margin-right: 0.75rem;
-      color: var(--primary);
-    }
-
-    .toast-content {
-      flex: 1;
-    }
-
-    .toast-title {
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-
-    .toast-description {
-      color: var(--muted-foreground);
-      font-size: 0.875rem;
-    }
-
-    .toast-close {
-      flex-shrink: 0;
-      margin-left: 0.75rem;
-      background: none;
-      border: none;
-      color: var(--muted-foreground);
-      cursor: pointer;
-      padding: 0.25rem;
-    }
-
-    @keyframes toast-enter {
-      from {
-        transform: translateY(1rem) scale(0.9);
-        opacity: 0;
+      
+      .logo {
+        font-size: 1.5rem !important;
+        min-width: 250px !important;
       }
-      to {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-      }
-    }
-
-    @keyframes toast-leave {
-      from {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-      }
-      to {
-        transform: translateY(1rem) scale(0.9);
-        opacity: 0;
-      }
-    }
-
-    /* Separator */
-    .separator {
-      height: 1px;
-      background-color: var(--border);
-      margin: 1.5rem 0;
-    }
-
-    /* Other Utility Classes */
-    .space-y-2 > * + * {
-      margin-top: 0.5rem;
-    }
-
-    .space-y-4 > * + * {
-      margin-top: 1rem;
-    }
-
-    .space-y-6 > * + * {
-      margin-top: 1.5rem;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    /* Header */
-    .page-header {
-      background-color: white;
-      border-bottom: 1px solid var(--border);
-      padding: 1.5rem 0;
-      margin-bottom: 2rem;
-    }
-
-    .page-title {
-      font-size: 1.875rem;
-      font-weight: 700;
-      color: #1F2937;
-    }
-
-    .page-description {
-      color: #6B7280;
-      margin-top: 0.5rem;
     }
   </style>
 </head>
 <body>
-  <!-- Navigation Button -->
-  <button id="nav-toggle" class="nav-button" aria-label="Toggle navigation">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="3" y1="12" x2="21" y2="12"></line>
-      <line x1="3" y1="6" x2="21" y2="6"></line>
-      <line x1="3" y1="18" x2="21" y2="18"></line>
-    </svg>
-  </button>
-
-  <!-- Sidebar Navigation -->
-  <div id="sidebar-overlay" class="sidebar-overlay"></div>
-  <aside id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-brand">
-        <div class="sidebar-logo-bg">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M8 3v4l3 3 1-1 1 1 3-3V3" />
-            <path d="M19 7h1a2 2 0 0 1 2 2v1a3 3 0 0 1-3 3h-5c-1.15 0-2.24-.34-3.15-.93" />
-            <path d="M4 7H3a2 2 0 0 0-2 2v1a3 3 0 0 0 3 3h5c1.15 0 2.24-.34 3.15-.93" />
-            <path d="M12 22v-5" />
-            <path d="M9 14.59A7.5 7.5 0 0 0 5 19.93" />
-            <path d="M15 14.59A7.5 7.5 0 0 1 19 19.93" />
-          </svg>
+  <!-- Navbar -->
+  <header class="navbar" style="padding:10px">
+    <div class="container" style="margin:0px">
+      <div class="navbar-content">
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu">
+          <div class="hamburger-lines">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </div>
+        </button>
+        <div class="header-photo-container">
+          <img src="image/no background.png" alt="Header Photo" class="header-photo">
         </div>
-        <span class="sidebar-title">Agri-Lift</span>
-      </div>
-      <div class="sidebar-description">
-        Cattle insurance made simple
-      </div>
+        <a href="home_page.html" class="logo" style="font-family: 'Pacifico', cursive; color: var(--primary);">Dairy-Lift</a>
+        <nav class="desktop-nav">
+          <a href="navhome.html" class="nav-link">Insurance</a>
+          <a href="navplans.html" class="nav-link">Plans</a>
+          <a href="navregister-cattle.html" class="nav-link">Register Cattle</a>
+          <a href="navclaims.html" class="nav-link">Claims</a>
+          <a href="#" class="nav-link">Support</a>
+        </nav>
+        <div class="navbar-actions">
+          <a href="watchliststore.html" class="btn btn-icon">
+            <i class="fas fa-heart"></i>
+          </a>
+          </div>
     </div>
-
-    <div class="sidebar-content">
-      <div class="sidebar-section-title">Main Navigation</div>
-      <nav class="sidebar-menu">
-        <a href="/" class="sidebar-link">
-          <svg class="text-gray-500" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    <div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
+    <div class="mobile-menu" id="mobile-menu">
+      <div class="mobile-menu-header">
+        <a href="home_page.html" class="mobile-menu-logo">Dairy-Lift</a>
+        <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Close menu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
-          Home
-        </a>
-        
-        <a href="/plans" class="sidebar-link">
-          <svg class="text-gray-500" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-            <line x1="12" y1="22.08" x2="12" y2="12"></line>
-          </svg>
-          Insurance Plans
-        </a>
-        
-        <a href="/claims" class="sidebar-link">
-          <svg class="text-gray-500" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-            <path d="m9 16 2 2 4-4"></path>
-          </svg>
-          Claims
-        </a>
-        
-        <a href="/support" class="sidebar-link">
-          <svg class="text-gray-500" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <circle cx="12" cy="8" r="1"></circle>
-            <line x1="12" y1="12" x2="12" y2="16"></line>
-          </svg>
-          Support
-        </a>
-      </nav>
-    </div>
-    
-    <div class="sidebar-footer">
-      <a href="/dashboard" class="sidebar-button">
-        Go to Dashboard
+        </button>
+      </div>
+      <a href="home_page.html" class="mobile-nav-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span style="margin-left: 10px;">Home</span>
       </a>
-      <div class="sidebar-copyright">
-        © 2025 Agri-Lift. All rights reserved.
-      </div>
-    </div>
-  </aside>
-
-  <!-- Page Header -->
-  <header class="page-header">
-    <div class="container">
-      <h1 class="page-title">Register Your Cattle</h1>
-      <p class="page-description">
-        Enter your cattle details to register them for insurance coverage
-      </p>
+      
+      <a href="filesforbuycattle/dist/index.html" class="mobile-nav-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span style="margin-left: 10px;">Buy Cattle</span>
+      </a>
+      <a href="#" class="mobile-nav-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        <span style="margin-left: 10px;">Bio-Gas</span>
+      </a>
+      <a href="farm-vista-scheduler-flow/dist/index.html" class="mobile-nav-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        <span style="margin-left: 10px;">Visit Farm</span>
+      </a>
+      <a href="admin-dashboard.html" class="mobile-nav-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+          <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
+          <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
+        </svg>
+        <span style="margin-left: 10px;">Register Cattle</span>
+      </a>
+      <a href="#" class="mobile-nav-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+          <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+        </svg>
+        <span style="margin-left: 10px;">Contact-Us</span>
+      </a>
+      <a href="help/home.html" class="mobile-nav-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <span style="margin-left: 10px;">Support</span>
+      </a>
+      <a href="login.html" class="mobile-nav-link mobile-nav-link-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+          <polyline points="10 17 15 12 10 7"></polyline>
+          <line x1="15" y1="12" x2="3" y2="12"></line>
+        </svg>
+        <span style="margin-left: 10px;">Login / Register</span>
+      </a>
     </div>
   </header>
-
+  
   <!-- Main Content -->
-  <main class="main-content">
-    <div class="container">
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Cattle Registration Form</h2>
-          <p class="card-description">
-            Enter your cattle details to register them for insurance coverage.
-            <br>
-            Cattle ID: <span id="cattle-id">INS-CATTLE-0001</span>
-          </p>
-        </div>
-        <div class="card-content">
-          <form id="cattle-registration-form" class="space-y-6">
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="breed" class="label">Breed</label>
-                <select id="breed" name="breed" class="select" required>
-                  <option value="">Select breed</option>
-                  <option value="angus">Angus</option>
-                  <option value="hereford">Hereford</option>
+  <main class="container mx-auto py-8">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <h1 class="text-2xl font-bold mb-4">Register Your Cattle</h1>
+      <p class="mb-6">Complete the form below to register your cattle for insurance coverage.</p>
+      
+      <!-- Registration Form -->
+      <form id="cattle-registration-form">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Owner Information -->
+          <div>
+            <h2 class="text-lg font-semibold mb-3">Owner Information</h2>
+            <div class="space-y-4">
+              <div>
+                <label for="owner-name" class="block text-sm font-medium mb-1">Full Name</label>
+                <input type="text" id="owner-name" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+              </div>
+              <div>
+                <label for="owner-phone" class="block text-sm font-medium mb-1">Phone Number</label>
+                <input type="tel" id="owner-phone" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+              </div>
+              <div>
+                <label for="owner-email" class="block text-sm font-medium mb-1">Email Address</label>
+                <input type="email" id="owner-email" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+              </div>
+              <div>
+                <label for="owner-address" class="block text-sm font-medium mb-1">Address</label>
+                <textarea id="owner-address" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md" required></textarea>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Cattle Information -->
+          <div>
+            <h2 class="text-lg font-semibold mb-3">Cattle Information</h2>
+            <div class="space-y-4">
+              <div>
+                <label for="cattle-breed" class="block text-sm font-medium mb-1">Breed</label>
+                <select id="cattle-breed" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                  <option value="">Select Breed</option>
                   <option value="holstein">Holstein</option>
                   <option value="jersey">Jersey</option>
-                  <option value="brahman">Brahman</option>
+                  <option value="brown-swiss">Brown Swiss</option>
+                  <option value="ayrshire">Ayrshire</option>
+                  <option value="guernsey">Guernsey</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
-
-              <div class="form-group">
-                <label for="age" class="label">Age (months)</label>
-                <input type="number" id="age" name="age" class="input" min="0" max="240" required>
+              <div>
+                <label for="cattle-age" class="block text-sm font-medium mb-1">Age (years)</label>
+                <input type="number" id="cattle-age" min="0" max="20" step="0.5" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
               </div>
-
-              <div class="form-group">
-                <label for="weight" class="label">Weight (kg)</label>
-                <input type="number" id="weight" name="weight" class="input" min="0" required>
+              <div>
+                <label for="cattle-weight" class="block text-sm font-medium mb-1">Weight (kg)</label>
+                <input type="number" id="cattle-weight" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
               </div>
-
-              <div class="form-group">
-                <label for="gender" class="label">Gender</label>
-                <select id="gender" name="gender" class="select" required>
-                  <option value="">Select gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
+              <div>
+                <label for="cattle-health" class="block text-sm font-medium mb-1">Health Status</label>
+                <select id="cattle-health" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                  <option value="">Select Health Status</option>
+                  <option value="excellent">Excellent</option>
+                  <option value="good">Good</option>
+                  <option value="fair">Fair</option>
+                  <option value="poor">Poor</option>
                 </select>
               </div>
-
-              <div class="form-group">
-                <label for="location" class="label">Location</label>
-                <input type="text" id="location" name="location" class="input" required>
-              </div>
-
-              <div class="form-group">
-                <label for="purchaseDate" class="label">Purchase Date</label>
-                <input type="date" id="purchaseDate" name="purchaseDate" class="input" required>
+              <div>
+                <label for="cattle-milk" class="block text-sm font-medium mb-1">Average Daily Milk Production (liters)</label>
+                <input type="number" id="cattle-milk" min="0" step="0.5" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
               </div>
             </div>
-
-            <!-- Cattle Image Upload -->
-            <div class="form-group">
-              <label class="label">Cattle Image</label>
-              <div id="image-upload" class="file-drop-area">
-                <input type="file" id="cattleImage" accept="image/*" class="hidden">
-                <label for="cattleImage" class="file-drop-content">
-                  <div id="preview-container">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path>
-                      <line x1="16" y1="5" x2="22" y2="5"></line>
-                      <line x1="19" y1="2" x2="19" y2="8"></line>
-                      <circle cx="9" cy="9" r="2"></circle>
-                      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
-                    </svg>
-                    <span class="text-sm text-gray-500 mt-2">Click to upload cattle image</span>
-                  </div>
-                </label>
-              </div>
+          </div>
+        </div>
+        
+        <!-- Insurance Plan Selection -->
+        <div class="mt-8">
+          <h2 class="text-lg font-semibold mb-3">Select Insurance Plan</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="border border-gray-200 rounded-lg p-4 hover:border-primary hover:shadow-md transition-all cursor-pointer">
+              <input type="radio" id="plan-basic" name="insurance-plan" value="basic" class="hidden" required>
+              <label for="plan-basic" class="cursor-pointer">
+                <div class="text-center">
+                  <h3 class="font-semibold text-lg">Basic Plan</h3>
+                  <p class="text-primary text-xl font-bold my-2">₹1,500/year</p>
+                  <ul class="text-sm text-gray-600 space-y-2 text-left mt-4">
+                    <li class="flex items-start">
+                      <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>Accident coverage</span>
+                    </li>
+                    <li class="flex items-start">
+                      <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>Basic illness coverage</span>
+                    </li>
+                    <li class="flex items-start">
+                      <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>Up to ₹20,000 coverage</span>
+                    </li>
+                  </ul>
+                </div>
+              </label>
             </div>
-
-            <!-- Health History -->
-            <div class="form-group">
-              <div class="health-history-header">
-                <label class="label">Health History</label>
-                <button type="button" id="add-health-entry" class="button button-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                  </svg>
-                  Add Entry
-                </button>
-              </div>
-              <div id="health-history-container"></div>
+            
+            <div class="border border-gray-200 rounded-lg p-4 hover:border-primary hover:shadow-md transition-all cursor-pointer">
+              <input type="radio" id="plan-standard" name="insurance-plan" value="standard" class="hidden" checked>
+              <label for="plan-standard" class="cursor-pointer">
+                <div class="text-center">
+                  <h3 class="font-semibold text-lg">Standard Plan</h3>
+                  <p class="text-primary text-xl font-bold my-2">₹3,000/year</p>
+                  <ul class="text-sm text-gray-600 space-y-2 text-left mt-4">
+                    <li class="flex items-start">
+                      <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>All Basic Plan benefits</span>
+                    </li>
+                    <li class="flex items-start">
+                      <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>Comprehensive illness coverage</span>
+                    </li>
+                    <li class="flex items-start">
+                      <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>Up to ₹50,000 coverage</span>
+                    </li>
+                  </ul>
+                </div>
+              </label>
             </div>
-
-            <!-- Document Upload -->
-            <div class="form-group">
-              <label class="label">Health Records & Documents</label>
-              <div id="document-upload" class="file-drop-area">
-                <input type="file" id="documents" multiple class="hidden">
-                <label for="documents" class="file-drop-content">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                  </svg>
-                  <span class="text-sm text-gray-500 mt-2">Click to upload documents</span>
-                </label>
-              </div>
-              <div id="document-list" class="file-list hidden"></div>
+            
+            <div class="border border-gray-200 rounded-lg p-4 hover:border-primary hover:shadow-md transition-all cursor-pointer">
+              <input type="radio" id="plan-premium" name="insurance-plan" value="premium" class="hidden">
+              <label for="plan-premium" class="cursor-pointer">
+                <div class="text-center">
+                  <h3 class="font-semibold text-lg">Premium Plan</h3>
+                  <p class="text-primary text-xl font-bold my-2">₹5,000/year</p>
+                  <ul class="text-sm text-gray-600 space-y-2 text-left mt-4">
+                    <li class="flex items-start">
+                      <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>All Standard Plan benefits</span>
+                    </li>
+                    <li class="flex items-start">
+                      <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>Milk production loss coverage</span>
+                    </li>
+                    <li class="flex items-start">
+                      <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>Up to ₹100,000 coverage</span>
+                    </li>
+                  </ul>
+                </div>
+              </label>
             </div>
-
-            <!-- Insurance Calculator -->
-            <div id="insurance-calculator" class="calculator-card">
-              <div class="calculator-header">
-                <h3 class="calculator-title">Estimated Insurance Value</h3>
-                <p class="calculator-description">Based on breed, age, and weight</p>
+          </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="mt-8 text-center">
+          <button type="submit" class="bg-primary text-white px-8 py-3 rounded-md font-medium hover:bg-primary/90 transition-colors">
+            Register Cattle
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div>
+          <a href="#" class="text-primary font-['Pacifico'] text-2xl"
+            >Dairy-Lift</a
+          >
+          <p class="mt-4 text-gray-400">
+            Empowering dairy farmers through innovative investment solutions
+            and comprehensive cattle insurance.
+          </p>
+          <div class="mt-6 flex space-x-4">
+            <a
+              href="#"
+              class="text-gray-400 hover:text-white transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"
+                ></path>
+              </svg>
+            </a>
+            <a
+              href="#"
+              class="text-gray-400 hover:text-white transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"
+                ></path>
+              </svg>
+            </a>
+            <a
+              href="#"
+              class="text-gray-400 hover:text-white transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path
+                  d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"
+                ></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </a>
+            <a
+              href="#"
+              class="text-gray-400 hover:text-white transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"
+                ></path>
+                <rect x="2" y="9" width="4" height="12"></rect>
+                <circle cx="4" cy="4" r="2"></circle>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+          <ul class="space-y-3">
+            <li>
+              <a href="home_page.html" class="text-gray-400 hover:text-white"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a href="dashboard.html" class="text-gray-400 hover:text-white"
+                >Dashboard</a
+              >
+            </li>
+            <li>
+              <a href="navplans.html" class="text-gray-400 hover:text-white"
+                >Insurance Plans</a
+              >
+            </li>
+            <li>
+              <a href="navregister-cattle.html" class="text-gray-400 hover:text-white"
+                >Register Cattle</a
+              >
+            </li>
+            <li>
+              <a href="navfaq.html" class="text-gray-400 hover:text-white"
+                >FAQ</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+          <ul class="space-y-3">
+            <li class="flex items-start">
+              <div
+                class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5"
+              >
+                <i class="ri-map-pin-line"></i>
               </div>
-              <div class="calculator-content">
-                <div id="insurance-value" class="calculator-value">$0</div>
-                <p class="calculator-note">This is an estimated value. Final insurance value may vary based on additional factors.</p>
+              <span class="ml-3 text-gray-400"
+                >123 Dairy Farm Road, Green Valley, CA 94535</span
+              >
+            </li>
+            <li class="flex items-start">
+              <div
+                class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5"
+              >
+                <i class="ri-phone-line"></i>
               </div>
+              <span class="ml-3 text-gray-400">+1 (555) 123-4567</span>
+            </li>
+            <li class="flex items-start">
+              <div
+                class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5"
+              >
+                <i class="ri-mail-line"></i>
+              </div>
+              <span class="ml-3 text-gray-400">dairylift@gmail.com</span>
+            </li>
+            <li class="flex items-start">
+              <div
+                class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5"
+              >
+                <i class="ri-time-line"></i>
+              </div>
+              <span class="ml-3 text-gray-400">Mon-Fri: 9AM-5PM (PST)</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Newsletter</h3>
+          <p class="text-gray-400 mb-4">
+            Subscribe to receive updates on dairy market trends and investment
+            opportunities.
+          </p>
+          <form class="space-y-4">
+            <div>
+              <input
+                type="email"
+                placeholder="Your email address"
+                class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-primary text-white"
+              />
             </div>
-
-            <button type="submit" id="submit-button" class="button button-primary button-block">Register Cattle</button>
+            <button
+              type="submit"
+              class="w-full bg-primary hover:bg-primary/90 text-white py-2 font-medium !rounded-button whitespace-nowrap"
+            >
+              Subscribe
+            </button>
           </form>
         </div>
       </div>
-    </div>
-  </main>
-
-  <!-- Toast Notification -->
-  <div class="toast-container">
-    <div id="toast" class="toast hidden">
-      <div class="toast-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
-      </div>
-      <div class="toast-content">
-        <div class="toast-title">Registration Successful</div>
-        <div class="toast-description" id="toast-message">Cattle ID: INS-CATTLE-0001 has been registered.</div>
-      </div>
-      <button class="toast-close" aria-label="Close">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <script>
-    // Counter for generating cattle IDs
-    let cattleCounter = 1;
-
-    // Navigation functionality
-    const navToggle = document.getElementById('nav-toggle');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarOverlay = document.getElementById('sidebar-overlay');
-
-    function toggleSidebar() {
-      sidebar.classList.toggle('open');
-      sidebarOverlay.classList.toggle('open');
-    }
-
-    navToggle.addEventListener('click', toggleSidebar);
-    sidebarOverlay.addEventListener('click', toggleSidebar);
-    
-    // Generate unique Cattle ID
-    function generateCattleId() {
-      const id = `INS-CATTLE-${String(cattleCounter).padStart(4, '0')}`;
-      cattleCounter++;
-      return id;
-    }
-
-    // Update the cattle ID in the UI
-    document.getElementById('cattle-id').textContent = generateCattleId();
-
-    // Cattle Image Upload Preview
-    const cattleImage = document.getElementById('cattleImage');
-    const previewContainer = document.getElementById('preview-container');
-
-    cattleImage.addEventListener('change', function(e) {
-      if (e.target.files.length > 0) {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-          previewContainer.innerHTML = `<img src="${e.target.result}" class="file-preview" alt="Cattle preview">`;
-        };
-        
-        reader.readAsDataURL(file);
-      }
-    });
-
-    // Document Upload
-    const documentsInput = document.getElementById('documents');
-    const documentList = document.getElementById('document-list');
-
-    documentsInput.addEventListener('change', function(e) {
-      const files = Array.from(e.target.files);
-      
-      if (files.length > 0) {
-        documentList.classList.remove('hidden');
-        documentList.innerHTML = '';
-        
-        files.forEach((file, index) => {
-          const fileItem = document.createElement('div');
-          fileItem.className = 'file-item';
-          fileItem.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-            </svg>
-            <span class="file-item-name">${file.name}</span>
-            <button type="button" class="file-item-remove" data-index="${index}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          `;
-          documentList.appendChild(fileItem);
-        });
-        
-        // Add remove functionality
-        const removeButtons = documentList.querySelectorAll('.file-item-remove');
-        removeButtons.forEach(button => {
-          button.addEventListener('click', function() {
-            this.closest('.file-item').remove();
-            if (documentList.children.length === 0) {
-              documentList.classList.add('hidden');
-            }
-          });
-        });
-      }
-    });
-
-    // Health History
-    const addHealthEntryButton = document.getElementById('add-health-entry');
-    const healthHistoryContainer = document.getElementById('health-history-container');
-    let healthEntryCount = 0;
-
-    function addHealthHistoryEntry() {
-      const entryId = `health-entry-${healthEntryCount}`;
-      
-      const entryHtml = `
-        <div id="${entryId}" class="health-history-card">
-          <div class="health-history-card-content">
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="label">Condition/Treatment</label>
-                <input type="text" name="healthCondition[]" class="input" placeholder="Enter condition or treatment">
-              </div>
-              
-              <div class="form-group">
-                <label class="label">Date</label>
-                <input type="date" name="healthDate[]" class="input" max="${new Date().toISOString().split('T')[0]}">
-              </div>
-              
-              <div class="form-group" style="grid-column: span 2;">
-                <label class="label">Notes</label>
-                <textarea name="healthNotes[]" class="textarea" placeholder="Enter additional notes"></textarea>
-              </div>
-            </div>
-            
-            <button type="button" class="button button-primary" data-entry-id="${entryId}" style="background-color: #EF4444; margin-top: 1rem;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 6h18"></path>
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-              </svg>
-              Remove Entry
-            </button>
-          </div>
+      <div
+        class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center"
+      >
+        <p class="text-gray-400 text-sm">
+          © 2025 Dairy-Lift. All rights reserved.
+        </p>
+        <div class="mt-4 md:mt-0 flex space-x-6">
+          <a href="#" class="text-gray-400 hover:text-white text-sm"
+            >Privacy Policy</a
+          >
+          <a href="#" class="text-gray-400 hover:text-white text-sm"
+            >Terms of Service</a
+          >
+          <a href="#" class="text-gray-400 hover:text-white text-sm"
+            >Cookie Policy</a
+          >
         </div>
-      `;
+      </div>
+    </div>
+  </footer>
+  
+  <!-- Mobile Menu JavaScript -->
+  <script>
+    // Mobile Menu Toggle
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuClose = document.getElementById('mobile-menu-close');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    const body = document.body;
+
+    // Function to open mobile menu
+    function openMobileMenu() {
+      mobileMenu.classList.add('active');
+      mobileMenuOverlay.classList.add('active');
+      mobileMenuToggle.classList.add('active');
+      body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
       
-      healthHistoryContainer.insertAdjacentHTML('beforeend', entryHtml);
+      // Add a subtle ripple effect on click
+      const ripple = document.createElement('span');
+      ripple.classList.add('menu-toggle-ripple');
+      mobileMenuToggle.appendChild(ripple);
       
-      // Add event listener to remove button
-      const removeButton = document.querySelector(`button[data-entry-id="${entryId}"]`);
-      removeButton.addEventListener('click', function() {
-        document.getElementById(entryId).remove();
+      // Position the ripple where the click happened
+      const rect = mobileMenuToggle.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height) * 2;
+      
+      ripple.style.width = ripple.style.height = `${size}px`;
+      ripple.style.left = `${-size/4}px`;
+      ripple.style.top = `${-size/4}px`;
+      
+      // Remove the ripple after animation completes
+      setTimeout(() => {
+        ripple.remove();
+      }, 600);
+      
+      // Add entrance animation to each nav link
+      const navLinks = mobileMenu.querySelectorAll('.mobile-nav-link');
+      navLinks.forEach((link, index) => {
+        link.style.opacity = '0';
+        link.style.transform = 'translateX(-10px)';
+        link.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        link.style.transitionDelay = `${0.05 * (index + 1)}s`;
+        
+        setTimeout(() => {
+          link.style.opacity = '1';
+          link.style.transform = 'translateX(0)';
+        }, 10);
       });
-      
-      healthEntryCount++;
     }
 
-    addHealthEntryButton.addEventListener('click', addHealthHistoryEntry);
+    // Function to close mobile menu
+    function closeMobileMenu() {
+      mobileMenu.classList.remove('active');
+      mobileMenuOverlay.classList.remove('active');
+      mobileMenuToggle.classList.remove('active');
+      body.style.overflow = ''; // Restore scrolling
+    }
 
-    // Insurance Value Calculator
-    const breedSelect = document.getElementById('breed');
-    const ageInput = document.getElementById('age');
-    const weightInput = document.getElementById('weight');
-    const insuranceValueElement = document.getElementById('insurance-value');
-
-    const BREED_BASE_VALUES = {
-      'angus': 2000,
-      'hereford': 1800,
-      'holstein': 1900,
-      'jersey': 1700,
-      'brahman': 2200,
-      'default': 1500
-    };
-
-    function calculateInsuranceValue() {
-      const breed = breedSelect.value;
-      const age = parseInt(ageInput.value) || 0;
-      const weight = parseInt(weightInput.value) || 0;
-      
-      if (breed && age >= 0 && weight > 0) {
-        const baseValue = BREED_BASE_VALUES[breed] || BREED_BASE_VALUES.default;
-        const weightFactor = 2.5; // $2.5 per kg
-        const ageDepreciation = 10; // $10 per month
-        
-        let value = baseValue + (weight * weightFactor) - (age * ageDepreciation);
-        value = Math.max(value, 500); // Minimum value of $500
-        
-        insuranceValueElement.textContent = `$${value.toLocaleString()}`;
+    // Toggle menu when clicking the hamburger button
+    mobileMenuToggle.addEventListener('click', function(event) {
+      event.stopPropagation();
+      if (mobileMenu.classList.contains('active')) {
+        closeMobileMenu();
       } else {
-        insuranceValueElement.textContent = '$0';
+        openMobileMenu();
       }
-    }
-
-    breedSelect.addEventListener('change', calculateInsuranceValue);
-    ageInput.addEventListener('input', calculateInsuranceValue);
-    weightInput.addEventListener('input', calculateInsuranceValue);
-
-    // Form Submission
-    const form = document.getElementById('cattle-registration-form');
-    const submitButton = document.getElementById('submit-button');
-    const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toast-message');
-    const toastCloseButton = document.querySelector('.toast-close');
-
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      // Set loading state
-      submitButton.textContent = 'Registering...';
-      submitButton.disabled = true;
-      
-      // Simulate form submission delay
-      setTimeout(function() {
-        // Update toast message with current cattle ID
-        const cattleId = document.getElementById('cattle-id').textContent;
-        toastMessage.textContent = `Cattle ID: ${cattleId} has been registered.`;
-        
-        // Show toast
-        showToast();
-        
-        // Reset form and generate new cattle ID
-        form.reset();
-        document.getElementById('cattle-id').textContent = generateCattleId();
-        
-        // Reset file previews
-        previewContainer.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path>
-            <line x1="16" y1="5" x2="22" y2="5"></line>
-            <line x1="19" y1="2" x2="19" y2="8"></line>
-            <circle cx="9" cy="9" r="2"></circle>
-            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
-          </svg>
-          <span class="text-sm text-gray-500 mt-2">Click to upload cattle image</span>
-        `;
-        
-        // Clear document list
-        documentList.innerHTML = '';
-        documentList.classList.add('hidden');
-        
-        // Clear health history entries
-        healthHistoryContainer.innerHTML = '';
-        
-        // Reset insurance value
-        insuranceValueElement.textContent = '$0';
-        
-        // Reset button state
-        submitButton.textContent = 'Register Cattle';
-        submitButton.disabled = false;
-      }, 1500);
     });
 
-    function showToast() {
-      toast.classList.remove('hidden');
-      toast.classList.remove('toast-hidden');
-      
-      // Auto-hide after 5 seconds
-      setTimeout(hideToast, 5000);
-    }
+    // Close menu when clicking the close button
+    mobileMenuClose.addEventListener('click', closeMobileMenu);
 
-    function hideToast() {
-      toast.classList.add('toast-hidden');
-      
-      // Wait for animation to complete before hiding
-      setTimeout(() => {
-        toast.classList.add('hidden');
-      }, 300);
-    }
+    // Close menu when clicking outside
+    mobileMenuOverlay.addEventListener('click', closeMobileMenu);
 
-    toastCloseButton.addEventListener('click', hideToast);
+    // Close menu when pressing Escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && mobileMenu.classList.contains('active')) {
+        closeMobileMenu();
+      }
+    });
 
-    // Set max date for purchase date to today
-    const purchaseDateInput = document.getElementById('purchaseDate');
-    const today = new Date().toISOString().split('T')[0];
-    purchaseDateInput.setAttribute('max', today);
+    // Close menu when clicking on a mobile nav link
+    const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', closeMobileMenu);
+    });
+    
+    // Form submission handling
+    document.getElementById('cattle-registration-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('Cattle registration submitted successfully!');
+      this.reset();
+    });
+    
+    // Plan selection handling
+    const planCards = document.querySelectorAll('[name="insurance-plan"]');
+    planCards.forEach(plan => {
+      plan.parentElement.addEventListener('click', function() {
+        planCards.forEach(p => {
+          p.checked = false;
+          p.parentElement.classList.remove('border-primary', 'shadow-md');
+          p.parentElement.classList.add('border-gray-200');
+        });
+        plan.checked = true;
+        plan.parentElement.classList.remove('border-gray-200');
+        plan.parentElement.classList.add('border-primary', 'shadow-md');
+      });
+    });
+    
+    // Initialize the selected plan
+    document.querySelector('[name="insurance-plan"]:checked').parentElement.classList.add('border-primary', 'shadow-md');
+    document.querySelector('[name="insurance-plan"]:checked').parentElement.classList.remove('border-gray-200');
   </script>
-
-  <!-- Include the GPTEngineer script -->
-  <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
 </body>
 </html>

@@ -12,11 +12,103 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <!-- Additional Resources -->
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com/3.4.16"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Function to initialize auth and dispatch events
+    function initializeAuth() {
+      console.log('Initializing auth in home page...');
+      if (window.DairyLiftAuth) {
+        console.log('Auth script loaded, initializing...');
+        window.DairyLiftAuth.initAuth();
+
+        // Force UI update after a short delay
+        setTimeout(function() {
+          if (window.DairyLiftAuth) {
+            window.DairyLiftAuth.updateAuthUI();
+          }
+        }, 500);
+      } else {
+        console.error('Auth script not loaded properly');
+        // Try to load it again
+        var script = document.createElement('script');
+        script.src = 'js/auth.js';
+        script.onload = function() {
+          console.log('Auth script loaded dynamically');
+          if (window.DairyLiftAuth) {
+            window.DairyLiftAuth.initAuth();
+
+            // Force UI update after a short delay
+            setTimeout(function() {
+              if (window.DairyLiftAuth) {
+                window.DairyLiftAuth.updateAuthUI();
+              }
+            }, 500);
+          }
+        };
+        document.head.appendChild(script);
+      }
+    }
+
+    // Call initialization on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', initializeAuth);
+
+    // Also call initialization immediately if document is already loaded
+    if (document.readyState !== 'loading') {
+      initializeAuth();
+    }
+
+    // Call initialization on window load
+    window.addEventListener('load', initializeAuth);
+
+    // Listen for auth.js loaded event
+    document.addEventListener('dairyLiftAuthLoaded', function(event) {
+      console.log('Auth script loaded event received');
+      initializeAuth();
+    });
+
+    // Listen for storage events to sync auth state across tabs
+    window.addEventListener('storage', function(event) {
+      if (event.key === 'dairyLift_auth') {
+        console.log('Auth state changed in another tab, updating UI');
+        if (window.DairyLiftAuth) {
+          window.DairyLiftAuth.updateAuthUI();
+
+          // Force UI update after a short delay
+          setTimeout(function() {
+            if (window.DairyLiftAuth) {
+              window.DairyLiftAuth.updateAuthUI();
+            }
+          }, 300);
+        }
+      }
+    });
+
+    // Set up periodic check for auth state
+    setInterval(function() {
+      if (window.DairyLiftAuth) {
+        const isLoggedIn = window.DairyLiftAuth.isLoggedIn();
+        const profileIcon = document.getElementById('profile-icon-link');
+
+        if (isLoggedIn && !profileIcon) {
+          console.log('Periodic check: User is logged in but profile icon not found, updating UI');
+          window.DairyLiftAuth.updateAuthUI();
+        }
+      }
+    }, 1000);
+
+    // Force an update when the user becomes visible (tab focus)
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden && window.DairyLiftAuth) {
+        console.log('Page became visible, forcing UI update');
+        window.DairyLiftAuth.updateAuthUI();
+      }
+    });
+  </script>
   <script>
     tailwind.config = {
       theme: {
@@ -116,19 +208,41 @@
 
     .navbar-content {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
       height: 4rem;
+      position: relative;
+      padding: 0.5rem 0;
+    }
+
+    .header-photo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 25px 0 15px;
+      width: 70px;
+      height: 70px;
+      flex-shrink: 0;
+    }
+
+    .header-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 50%;
+      background-color: white;
+      padding: 2px;
     }
 
     .logo {
       font-weight: bold;
       font-size: 1.5rem;
       color: var(--primary);
-      min-width: 180px;
+      min-width: 220px;
       text-align: left;
       margin-right: auto;
       display: inline-block;
+      padding: 0 15px;
     }
 
     .desktop-nav {
@@ -148,8 +262,8 @@
       color: var(--primary);
       cursor: pointer;
       padding: 0.5rem;
-      width: 40px;
-      height: 40px;
+      width: 45px;
+      height: 45px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -158,18 +272,20 @@
       transition: all 0.3s ease;
       overflow: hidden;
       z-index: 50;
+      margin-left: 5px;
+      flex-shrink: 0;
     }
-    
+
     .mobile-menu-toggle:hover {
       background-color: var(--primary-light);
       transform: scale(1.05);
       box-shadow: 0 0 10px rgba(173, 110, 245, 0.2);
     }
-    
+
     .mobile-menu-toggle:active {
       transform: scale(0.95);
     }
-    
+
     .hamburger-lines {
       width: 22px;
       height: 18px;
@@ -178,7 +294,7 @@
       flex-direction: column;
       justify-content: space-between;
     }
-    
+
     .hamburger-line {
       display: block;
       height: 2px;
@@ -188,22 +304,22 @@
       transition: all 0.3s ease-in-out;
       transform-origin: center;
     }
-    
+
     .mobile-menu-toggle.active .hamburger-line:nth-child(1) {
       transform: translateY(8px) rotate(45deg);
       width: 22px;
     }
-    
+
     .mobile-menu-toggle.active .hamburger-line:nth-child(2) {
       opacity: 0;
       transform: translateX(-10px);
     }
-    
+
     .mobile-menu-toggle.active .hamburger-line:nth-child(3) {
       transform: translateY(-8px) rotate(-45deg);
       width: 22px;
     }
-    
+
     .mobile-menu-toggle::after {
       content: '';
       position: absolute;
@@ -215,11 +331,11 @@
       transform: scale(0);
       transition: transform 0.3s ease;
     }
-    
+
     .mobile-menu-toggle:hover::after {
       transform: scale(1);
     }
-    
+
     .menu-toggle-ripple {
       position: absolute;
       background-color: rgba(173, 110, 245, 0.3);
@@ -228,7 +344,7 @@
       animation: ripple 0.6s linear;
       pointer-events: none;
     }
-    
+
     @keyframes ripple {
       to {
         transform: scale(2);
@@ -256,7 +372,7 @@
     .mobile-menu.active {
       transform: translateX(280px);
     }
-    
+
     .mobile-menu-overlay {
       position: fixed;
       top: 0;
@@ -270,7 +386,7 @@
       transition: opacity 0.3s ease, visibility 0.3s ease;
       backdrop-filter: blur(2px);
     }
-    
+
     .mobile-menu-overlay.active {
       opacity: 1;
       visibility: visible;
@@ -293,7 +409,7 @@
       background-color: var(--muted);
       transform: translateX(5px);
     }
-    
+
     .mobile-nav-link::after {
       content: '';
       position: absolute;
@@ -304,7 +420,7 @@
       background-color: var(--primary);
       transition: width 0.3s ease;
     }
-    
+
     .mobile-nav-link:hover::after {
       width: 30%;
     }
@@ -321,7 +437,7 @@
       transform: translateX(5px) scale(1.02);
       box-shadow: 0 4px 8px rgba(173, 110, 245, 0.15);
     }
-    
+
     .mobile-menu-header {
       display: flex;
       align-items: center;
@@ -330,14 +446,14 @@
       border-bottom: 1px solid var(--border);
       margin-bottom: 1rem;
     }
-    
+
     .mobile-menu-logo {
       font-family: 'Pacifico', cursive;
       font-size: 1.5rem;
       color: var(--primary);
       text-decoration: none;
     }
-    
+
     .mobile-menu-close {
       background: none;
       border: none;
@@ -351,7 +467,7 @@
       border-radius: 50%;
       transition: all 0.2s ease;
     }
-    
+
     .mobile-menu-close:hover {
       background-color: var(--muted);
       color: var(--foreground);
@@ -377,6 +493,17 @@
 
       .mobile-menu-toggle {
         display: block;
+      }
+
+      .header-photo-container {
+        width: 80px;
+        height: 80px;
+        margin: 0 30px 0 20px;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        min-width: 250px;
       }
 
       .nav-link {
@@ -415,10 +542,10 @@
         color: var(--primary);
       }
     }
-    
+
     /* Remix Icons Fix */
     :where([class^="ri-"])::before { content: "\f3c2"; }
-    
+
     /* Button Styles */
     .btn {
       display: inline-flex;
@@ -462,6 +589,25 @@
       background-color: var(--muted);
     }
 
+    /* Profile Icon Styles */
+    .profile-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: var(--primary);
+      transition: all 0.3s ease;
+    }
+
+    .profile-icon:hover {
+      background-color: var(--primary-light);
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(173, 110, 245, 0.2);
+    }
+
     .btn-outline-primary {
       background-color: transparent;
       color: var(--primary);
@@ -482,7 +628,7 @@
       width: 16px;
       height: 16px;
     }
-    
+
       .hero-section {
   position: relative;
   width: 100%;
@@ -607,8 +753,8 @@
       opacity: 0.9;
       }
       }
-      
-      
+
+
       @keyframes milkSplash {
       0% {
       transform: scale(1);
@@ -707,6 +853,7 @@
       }
       input[type="range"] {
       -webkit-appearance: none;
+      appearance: none;
       width: 100%;
       height: 8px;
       border-radius: 5px;
@@ -877,12 +1024,17 @@
             <span class="hamburger-line"></span>
           </div>
         </button>
+        <div class="header-photo-container">
+          <img src="image/no background.png" alt="Header Photo" class="header-photo">
+        </div>
         <a href="#" class="logo" style="font-family: 'Pacifico', cursive; color: var(--primary);">Dairy-Lift</a>
         <nav class="desktop-nav">
-          <a href="home_page.html" class="nav-link">Home</a>
-          <a href="dashboard.html" class="nav-link">Dashboard</a>
-          <a href="store.html" class="nav-link">Store</a>
-          <a href="filesforbuycattle/dist/index.html" class="nav-link">Buy Cattles</a>
+          <a href="./index.html" class="nav-link">Home</a>
+          <a href="./dashboard.html" class="nav-link">Dashboard</a>
+          <a href="YourCattle.html" class="nav-link">All Cattle</a>
+          <a href="./store.html" class="nav-link">Store</a>
+          <a href="visit-farm.html" class="nav-link">Visit Farm</a>
+          <a href="./admin-dashboard.html" class="nav-link">Admin</a>
         </nav>
         <div class="navbar-actions">
           <a href="watchliststore.html" class="btn btn-icon">
@@ -910,6 +1062,31 @@
           </svg>
         </button>
       </div>
+      <a href="filesforbuycattle/dist/index.html" class="mobile-nav-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span style="margin-left: 10px;">Buy Cattle</span>
+      </a>
+      <a href="./biogas/home.html" class="mobile-nav-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        <span style="margin-left: 10px;">Bio-Gas</span>
+      </a>
+
+      <a href="visit-farm.html" class="mobile-nav-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        <span style="margin-left: 10px;">Visit Farm</span>
+      </a>
       <a href="navhome.html" class="mobile-nav-link">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
           <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
@@ -918,36 +1095,12 @@
         </svg>
         <span style="margin-left: 10px;">Insurance</span>
       </a>
-      <a href="farm-vista-scheduler-flow/dist/index.html" class="mobile-nav-link">
+      <a href="admin-dashboard.html" class="mobile-nav-link">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
           <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
           <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
         </svg>
-        <span style="margin-left: 10px;">Visit Farm</span>
-      </a>
-      <a href="home_page.html" class="mobile-nav-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-        <span style="margin-left: 10px;">Home</span>
-      </a>
-      <a href="dashboard.html" class="mobile-nav-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-          <rect x="3" y="3" width="7" height="7"></rect>
-          <rect x="14" y="3" width="7" height="7"></rect>
-          <rect x="14" y="14" width="7" height="7"></rect>
-          <rect x="3" y="14" width="7" height="7"></rect>
-        </svg>
-        <span style="margin-left: 10px;">Dashboard</span>
-      </a>
-      <a href="store.html" class="mobile-nav-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-          <circle cx="9" cy="21" r="1"></circle>
-          <circle cx="20" cy="21" r="1"></circle>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-        </svg>
-        <span style="margin-left: 10px;">Store</span>
+        <span style="margin-left: 10px;">Register Cattle</span>
       </a>
       <a href="#" class="mobile-nav-link">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
@@ -964,7 +1117,6 @@
         </svg>
         <span style="margin-left: 10px;">Support</span>
       </a>
-      
       <a href="login.html" class="mobile-nav-link mobile-nav-link-primary">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
           <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
@@ -981,7 +1133,7 @@
       <source src="video/daackground.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
-    
+
     <section class="hero-section pt-24 pb-16 md:pt-32 md:pb-24">
       <div class="animated-bg">
         <div class="milk-droplet"></div>
@@ -1004,7 +1156,7 @@
           <video autoplay muted loop playsinline class="background-video">
             <source src="your-video.mp4" type="video/mp4" />
           </video>
-        
+
           <div class="content-wrapper">
             <h1>Invest in Premium Dairy Cattle</h1>
             <p>
@@ -1017,7 +1169,7 @@
             </div>
           </div>
         </section>
-        
+
           </p>
           <div class="mt-8 flex flex-wrap gap-4 hero-buttons">
             <button
@@ -1060,7 +1212,7 @@
             >
               <i class="ri-line-chart-line text-primary ri-xl"></i>
             </div>
-            <h3 class="text-3xl font-bold text-gray-900">12-15%</h3>
+            <h3 class="text-3xl font-bold text-gray-900">12-15%</</h3>
             <p class="text-gray-600 mt-1">Annual ROI</p>
           </div>
           <div
@@ -1940,7 +2092,7 @@
                 <i class="ri-twitter-x-fill"></i>
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/dairy_lift/"
                 class="w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full hover:bg-primary transition-colors"
               >
                 <i class="ri-instagram-fill"></i>
@@ -2027,7 +2179,7 @@
                 >
                   <i class="ri-mail-line"></i>
                 </div>
-                <span class="ml-3 text-gray-400">invest@dairy-lift.com</span>
+                <span class="ml-3 text-gray-400">dairylift@gmail.com</span>
               </li>
               <li class="flex items-start">
                 <div
@@ -2084,6 +2236,18 @@
     </footer>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        // Initialize authentication UI
+        if (window.DairyLiftAuth) {
+          window.DairyLiftAuth.updateAuthUI();
+
+          // If user is logged in, update any user-specific elements
+          if (window.DairyLiftAuth.isLoggedIn()) {
+            const userData = window.DairyLiftAuth.getCurrentUser();
+            // You can update user-specific elements here if needed
+            console.log("User is logged in:", userData);
+          }
+        }
+
         // Performance Chart
         const chartDom = document.getElementById("performance-chart");
         const myChart = echarts.init(chartDom);
@@ -2238,25 +2402,25 @@
         mobileMenuOverlay.classList.add('active');
         mobileMenuToggle.classList.add('active');
         body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
-        
+
         // Add a subtle ripple effect on click
         const ripple = document.createElement('span');
         ripple.classList.add('menu-toggle-ripple');
         mobileMenuToggle.appendChild(ripple);
-        
+
         // Position the ripple where the click happened
         const rect = mobileMenuToggle.getBoundingClientRect();
         const size = Math.max(rect.width, rect.height) * 2;
-        
+
         ripple.style.width = ripple.style.height = `${size}px`;
         ripple.style.left = `${-size/4}px`;
         ripple.style.top = `${-size/4}px`;
-        
+
         // Remove the ripple after animation completes
         setTimeout(() => {
           ripple.remove();
         }, 600);
-        
+
         // Add entrance animation to each nav link
         const navLinks = mobileMenu.querySelectorAll('.mobile-nav-link');
         navLinks.forEach((link, index) => {
@@ -2264,7 +2428,7 @@
           link.style.transform = 'translateX(-10px)';
           link.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
           link.style.transitionDelay = `${0.05 * (index + 1)}s`;
-          
+
           setTimeout(() => {
             link.style.opacity = '1';
             link.style.transform = 'translateX(0)';
@@ -2292,7 +2456,7 @@
 
       // Close menu when clicking the close button
       mobileMenuClose.addEventListener('click', closeMobileMenu);
-      
+
       // Close menu when clicking the overlay
       mobileMenuOverlay.addEventListener('click', closeMobileMenu);
 
@@ -2301,7 +2465,7 @@
       mobileLinks.forEach(link => {
         link.addEventListener('click', closeMobileMenu);
       });
-      
+
       // Close mobile menu when pressing Escape key
       document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape' && mobileMenu.classList.contains('active')) {

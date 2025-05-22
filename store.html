@@ -17,98 +17,7 @@
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com/3.4.16"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="js/auth.js"></script>
-  <script>
-    // Function to initialize auth and dispatch events
-    function initializeAuth() {
-      console.log('Initializing auth in store page...');
-      if (window.DairyLiftAuth) {
-        console.log('Auth script loaded, initializing...');
-        window.DairyLiftAuth.initAuth();
-
-        // Force UI update after a short delay
-        setTimeout(function() {
-          if (window.DairyLiftAuth) {
-            window.DairyLiftAuth.updateAuthUI();
-          }
-        }, 500);
-      } else {
-        console.error('Auth script not loaded properly');
-        // Try to load it again
-        var script = document.createElement('script');
-        script.src = 'js/auth.js';
-        script.onload = function() {
-          console.log('Auth script loaded dynamically');
-          if (window.DairyLiftAuth) {
-            window.DairyLiftAuth.initAuth();
-
-            // Force UI update after a short delay
-            setTimeout(function() {
-              if (window.DairyLiftAuth) {
-                window.DairyLiftAuth.updateAuthUI();
-              }
-            }, 500);
-          }
-        };
-        document.head.appendChild(script);
-      }
-    }
-
-    // Call initialization on DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', initializeAuth);
-
-    // Also call initialization immediately if document is already loaded
-    if (document.readyState !== 'loading') {
-      initializeAuth();
-    }
-
-    // Call initialization on window load
-    window.addEventListener('load', initializeAuth);
-
-    // Listen for auth.js loaded event
-    document.addEventListener('dairyLiftAuthLoaded', function(event) {
-      console.log('Auth script loaded event received');
-      initializeAuth();
-    });
-
-    // Listen for storage events to sync auth state across tabs
-    window.addEventListener('storage', function(event) {
-      if (event.key === 'dairyLift_auth') {
-        console.log('Auth state changed in another tab, updating UI');
-        if (window.DairyLiftAuth) {
-          window.DairyLiftAuth.updateAuthUI();
-
-          // Force UI update after a short delay
-          setTimeout(function() {
-            if (window.DairyLiftAuth) {
-              window.DairyLiftAuth.updateAuthUI();
-            }
-          }, 300);
-        }
-      }
-    });
-
-    // Set up periodic check for auth state
-    setInterval(function() {
-      if (window.DairyLiftAuth) {
-        const isLoggedIn = window.DairyLiftAuth.isLoggedIn();
-        const profileIcon = document.getElementById('profile-icon-link');
-
-        if (isLoggedIn && !profileIcon) {
-          console.log('Periodic check: User is logged in but profile icon not found, updating UI');
-          window.DairyLiftAuth.updateAuthUI();
-        }
-      }
-    }, 1000);
-
-    // Force an update when the user becomes visible (tab focus)
-    document.addEventListener('visibilitychange', function() {
-      if (!document.hidden && window.DairyLiftAuth) {
-        console.log('Page became visible, forcing UI update');
-        window.DairyLiftAuth.updateAuthUI();
-      }
-    });
-  </script>
+  <script src="../js/auth.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -608,25 +517,6 @@
       background-color: var(--muted);
     }
 
-    /* Profile Icon Styles */
-    .profile-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-color: rgba(173, 110, 245, 0.2);
-      color: #ad6ef5;
-      transition: all 0.3s ease;
-    }
-
-    .profile-icon:hover {
-      background-color: rgba(173, 110, 245, 0.3);
-      transform: scale(1.05);
-      box-shadow: 0 0 10px rgba(173, 110, 245, 0.2);
-    }
-
     .btn-sm {
       padding: 8px 16px;
       font-size: 0.875rem;
@@ -934,6 +824,72 @@
       color: var(--primary-foreground);
     }
 
+    /* Wishlist specific styles */
+    .wishlist-btn.active {
+      background: var(--primary);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .wishlist-btn.active i {
+      color: white;
+    }
+
+    .wishlist-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .wishlist-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: var(--primary);
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      animation: pulse-wishlist 0.3s ease;
+    }
+
+    @keyframes pulse-wishlist {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    /* Performance optimizations */
+    .product-image {
+      will-change: transform;
+      transition: transform 0.3s ease;
+    }
+
+    .product-card {
+      will-change: transform;
+      backface-visibility: hidden;
+      transform: translateZ(0);
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px) translateZ(0);
+    }
+
+    /* Loading states */
+    .loading-skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
     .product-content {
       padding: 1rem;
       display: flex;
@@ -969,6 +925,7 @@
       margin-bottom: 1rem;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -1536,14 +1493,15 @@
           </div>
         </button>
         <div class="header-photo-container">
-          <img src="image/no background.png" alt="Header Photo" class="header-photo">
+          <img src="../image/no background.png" alt="Header Photo" class="header-photo">
         </div>
         <a href="#" class="logo" style="font-family: 'Pacifico', cursive; color: var(--primary);">Dairy-Lift</a>
         <nav class="desktop-nav">
           <a href="home_page.html" class="nav-link">Home</a>
           <a href="dashboard.html" class="nav-link">Dashboard</a>
+          <a href="YourCattle.html" class="nav-link">All Cattle</a>
           <a href="store.html" class="nav-link">Store</a>
-          <a href="admin-dashboard.html" class="nav-link">Admin</a>
+          <a href="../admin-dashboard.html" class="nav-link">Admin</a>
         </nav>
         <div class="navbar-actions">
           <a href="watchliststore.html" class="btn btn-icon">
@@ -1582,7 +1540,7 @@
           </svg>
           <span style="margin-left: 10px;">Buy Cattle</span>
         </a>
-        <a href="biogas/home.html" class="mobile-nav-link">
+        <a href="../biogas/home.html" class="mobile-nav-link">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
             <circle cx="9" cy="21" r="1"></circle>
             <circle cx="20" cy="21" r="1"></circle>
@@ -1591,7 +1549,7 @@
           <span style="margin-left: 10px;">Bio-Gas</span>
         </a>
 
-        <a href="farm-vista-scheduler-flow/dist/index.html" class="mobile-nav-link">
+      <a href="visit-farm.html" class="mobile-nav-link">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
             <rect x="3" y="3" width="7" height="7"></rect>
             <rect x="14" y="3" width="7" height="7"></rect>
@@ -1600,7 +1558,7 @@
           </svg>
           <span style="margin-left: 10px;">Visit Farm</span>
         </a>
-        <a href="navhome.html" class="mobile-nav-link">
+        <a href="../navhome.html" class="mobile-nav-link">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
             <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
@@ -1608,7 +1566,7 @@
           </svg>
           <span style="margin-left: 10px;">Insurance</span>
         </a>
-        <a href="admin-dashboard.html" class="mobile-nav-link">
+        <a href="../admin-dashboard.html" class="mobile-nav-link">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
             <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
             <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
@@ -1622,7 +1580,7 @@
           </svg>
           <span style="margin-left: 10px;">Contact-Us</span>
         </a>
-        <a href="help/home.html" class="mobile-nav-link">
+        <a href="../help/home.html" class="mobile-nav-link">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
             <circle cx="12" cy="12" r="10"></circle>
             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
@@ -1630,7 +1588,7 @@
           </svg>
           <span style="margin-left: 10px;">Support</span>
         </a>
-        <a href="login.html" class="mobile-nav-link mobile-nav-link-primary">
+        <a href="../login.html" class="mobile-nav-link mobile-nav-link-primary">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
             <polyline points="10 17 15 12 10 7"></polyline>
@@ -1816,25 +1774,225 @@
     </div>
   </div>
 
+  <!-- Supabase Integration -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-products.js"></script>
+
   <script>
-    // Check if products exist in localStorage from manage_store.html
+    // Product data management with Supabase integration
     let productsData = [];
+    let supabaseInitialized = false;
+    let wishlistItems = new Set();
+    let cartItems = new Map();
 
-    // Try to load products from localStorage first
-    const storedProducts = localStorage.getItem('dairyvestProducts');
+    // Performance optimizations
+    const performanceOptimizations = {
+      debounceTimers: new Map(),
+      throttleTimers: new Map(),
 
-    if (storedProducts) {
-      // Convert the stored products to the format expected by the store page
-      const managedProducts = JSON.parse(storedProducts);
+      debounce(key, func, delay = 300) {
+        if (this.debounceTimers.has(key)) {
+          clearTimeout(this.debounceTimers.get(key));
+        }
 
-      productsData = managedProducts.map(product => {
-        return {
+        const timer = setTimeout(() => {
+          func();
+          this.debounceTimers.delete(key);
+        }, delay);
+
+        this.debounceTimers.set(key, timer);
+      },
+
+      throttle(key, func, delay = 100) {
+        if (this.throttleTimers.has(key)) {
+          return;
+        }
+
+        const timer = setTimeout(() => {
+          this.throttleTimers.delete(key);
+        }, delay);
+
+        this.throttleTimers.set(key, timer);
+        func();
+      }
+    };
+
+    // Initialize Supabase and load products
+    async function initializeSupabase() {
+      try {
+        console.log('🔄 Initializing Supabase Products Manager...');
+
+        const initialized = await window.supabaseProductsManager.initialize();
+        if (initialized) {
+          supabaseInitialized = true;
+          console.log('✅ Supabase Products Manager initialized successfully');
+          await loadProductsFromDatabase();
+        } else {
+          throw new Error('Failed to initialize Supabase Products Manager');
+        }
+      } catch (error) {
+        console.error('❌ Failed to initialize Supabase:', error);
+        supabaseInitialized = false;
+        loadFallbackProducts();
+      }
+    }
+
+    // Wishlist Management
+    const wishlistManager = {
+      init() {
+        this.loadWishlist();
+        this.updateWishlistUI();
+      },
+
+      loadWishlist() {
+        try {
+          const saved = localStorage.getItem('dairyLift_investor_wishlist');
+          if (saved) {
+            wishlistItems = new Set(JSON.parse(saved));
+          }
+        } catch (error) {
+          console.error('Error loading wishlist:', error);
+          wishlistItems = new Set();
+        }
+      },
+
+      saveWishlist() {
+        try {
+          localStorage.setItem('dairyLift_investor_wishlist', JSON.stringify([...wishlistItems]));
+        } catch (error) {
+          console.error('Error saving wishlist:', error);
+        }
+      },
+
+      addToWishlist(productId) {
+        wishlistItems.add(productId);
+        this.saveWishlist();
+        this.updateWishlistUI();
+        this.showNotification('Added to wishlist!', 'success');
+      },
+
+      removeFromWishlist(productId) {
+        wishlistItems.delete(productId);
+        this.saveWishlist();
+        this.updateWishlistUI();
+        this.showNotification('Removed from wishlist!', 'info');
+      },
+
+      toggleWishlist(productId) {
+        if (wishlistItems.has(productId)) {
+          this.removeFromWishlist(productId);
+        } else {
+          this.addToWishlist(productId);
+        }
+      },
+
+      isInWishlist(productId) {
+        return wishlistItems.has(productId);
+      },
+
+      updateWishlistUI() {
+        // Update wishlist buttons
+        document.querySelectorAll('.wishlist-btn').forEach(btn => {
+          const productId = btn.dataset.productId;
+          if (this.isInWishlist(productId)) {
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fas fa-heart"></i>';
+          } else {
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="far fa-heart"></i>';
+          }
+        });
+
+        // Update wishlist count in navbar
+        const wishlistLink = document.querySelector('a[href="watchliststore.html"]');
+        if (wishlistLink) {
+          const count = wishlistItems.size;
+          let badge = wishlistLink.querySelector('.wishlist-count');
+          if (count > 0) {
+            if (!badge) {
+              badge = document.createElement('span');
+              badge.className = 'wishlist-count';
+              badge.style.cssText = `
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                background-color: var(--primary);
+                color: white;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                font-size: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 500;
+              `;
+              wishlistLink.style.position = 'relative';
+              wishlistLink.appendChild(badge);
+            }
+            badge.textContent = count;
+          } else if (badge) {
+            badge.remove();
+          }
+        }
+      },
+
+      showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: ${type === 'success' ? '#10b981' : '#3b82f6'};
+          color: white;
+          padding: 12px 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          z-index: 1000;
+          font-weight: 500;
+          transform: translateX(100%);
+          transition: transform 0.3s ease;
+        `;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        // Animate in
+        setTimeout(() => {
+          notification.style.transform = 'translateX(0)';
+        }, 100);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+          notification.style.transform = 'translateX(100%)';
+          setTimeout(() => {
+            if (notification.parentNode) {
+              notification.parentNode.removeChild(notification);
+            }
+          }, 300);
+        }, 3000);
+      }
+    };
+
+    // Load products from Supabase database with performance optimization
+    async function loadProductsFromDatabase() {
+      try {
+        console.log('Loading products from database...');
+
+        // Show loading indicator
+        showLoadingIndicator(true);
+
+        const dbProducts = await window.supabaseProductsManager.getAllProducts();
+
+        // Convert database format to store format with performance optimization
+        productsData = dbProducts.map(product => ({
           id: product.id.toString(),
           name: product.name,
-          description: product.category.charAt(0).toUpperCase() + product.category.slice(1) + ' product from our dairy farm.',
-          price: product.price,
+          description: product.description || (product.category.charAt(0).toUpperCase() + product.category.slice(1) + ' product from our dairy farm.'),
+          price: parseFloat(product.price),
           rating: Math.floor(Math.random() * 2) + 4, // Random rating between 4-5
-          imageUrl: product.imageUrl || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80',
+          imageUrl: product.image_url || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80',
           inStock: product.status !== 'out-of-stock',
           category: product.category,
           featured: Math.random() > 0.7, // Randomly set some products as featured
@@ -1844,12 +2002,119 @@
             protein: '8g',
             calcium: '30% DV'
           }
-        };
-      });
+        }));
+
+        console.log(`✅ Loaded ${productsData.length} products from database`);
+
+        // Update the product listing with debouncing
+        performanceOptimizations.debounce('update-product-listing', () => {
+          if (window.productListing) {
+            window.productListing.products = [...productsData];
+            window.productListing.filteredProducts = [...productsData];
+            window.productListing.render();
+          } else {
+            initializeProductListing();
+          }
+
+          // Initialize wishlist after products are loaded
+          wishlistManager.init();
+
+          // Hide loading indicator
+          showLoadingIndicator(false);
+        }, 100);
+
+      } catch (error) {
+        console.error('Error loading products from database:', error);
+        showLoadingIndicator(false);
+        loadFallbackProducts();
+      }
     }
 
-    // If no products were found in localStorage or the array is empty, use default products
-    if (productsData.length === 0) {
+    // Show/hide loading indicator
+    function showLoadingIndicator(show) {
+      let indicator = document.getElementById('loading-indicator');
+
+      if (show && !indicator) {
+        indicator = document.createElement('div');
+        indicator.id = 'loading-indicator';
+        indicator.innerHTML = `
+          <div style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
+          ">
+            <div style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 16px;
+            ">
+              <div style="
+                width: 40px;
+                height: 40px;
+                border: 4px solid #e2e8f0;
+                border-top: 4px solid var(--primary);
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+              "></div>
+              <p style="color: var(--muted-foreground); font-weight: 500;">Loading products...</p>
+            </div>
+          </div>
+          <style>
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          </style>
+        `;
+        document.body.appendChild(indicator);
+      } else if (!show && indicator) {
+        indicator.remove();
+      }
+    }
+
+    // Load fallback products when database is unavailable
+    function loadFallbackProducts() {
+      console.log('Loading fallback products...');
+
+      // Try to load products from localStorage first
+      const storedProducts = localStorage.getItem('dairyvestProducts');
+
+      if (storedProducts) {
+        // Convert the stored products to the format expected by the store page
+        const managedProducts = JSON.parse(storedProducts);
+
+        productsData = managedProducts.map(product => {
+          return {
+            id: product.id.toString(),
+            name: product.name,
+            description: product.category.charAt(0).toUpperCase() + product.category.slice(1) + ' product from our dairy farm.',
+            price: product.price,
+            rating: Math.floor(Math.random() * 2) + 4, // Random rating between 4-5
+            imageUrl: product.imageUrl || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80',
+            inStock: product.status !== 'out-of-stock',
+            category: product.category,
+            featured: Math.random() > 0.7, // Randomly set some products as featured
+            nutritionInfo: {
+              calories: '150 per serving',
+              fat: '8g',
+              protein: '8g',
+              calcium: '30% DV'
+            }
+          };
+        });
+      }
+
+      // If no products were found in localStorage or the array is empty, use default products
+      if (productsData.length === 0) {
       productsData = [
       {
         id: 'prod-001',
@@ -2481,7 +2746,32 @@
         }
       }
     ];
+      }
+
+      console.log(`✅ Loaded ${productsData.length} fallback products`);
+
+      // Initialize the product listing after loading data
+      if (window.productListing) {
+        window.productListing.products = [...productsData];
+        window.productListing.filteredProducts = [...productsData];
+        window.productListing.render();
+      }
     }
+
+    // Initialize everything when DOM is loaded
+    document.addEventListener('DOMContentLoaded', async function() {
+      console.log('🚀 Store page initializing...');
+
+      // Initialize Supabase first
+      await initializeSupabase();
+
+      // Initialize other components
+      const cart = new Cart();
+      const wishlist = new Wishlist();
+      window.productListing = new ProductListing(cart, wishlist);
+
+      console.log('✅ Store page initialization complete');
+    });
 
     // Utility functions
     function formatPrice(price) {
@@ -2978,18 +3268,18 @@
         let productsHTML = '';
 
         this.filteredProducts.forEach(product => {
-          const isInWishlist = this.wishlist.isInWishlist(product.id);
+          const isInWishlist = wishlistManager.isInWishlist(product.id);
 
           productsHTML += `
             <div class="card product-card" data-id="${product.id}">
               <div class="product-image-container">
-                <img src="${product.imageUrl}" alt="${product.name}" class="product-image">
+                <img src="${product.imageUrl}" alt="${product.name}" class="product-image" loading="lazy">
                 ${product.inStock ?
                   (product.featured ? '<span class="product-badge">Featured</span>' : '') :
                   '<span class="product-badge out-of-stock">Out of Stock</span>'
                 }
                 <div class="product-actions">
-                  <button class="action-btn wishlist-btn ${isInWishlist ? 'active' : ''}" data-id="${product.id}">
+                  <button class="action-btn wishlist-btn ${isInWishlist ? 'active' : ''}" data-product-id="${product.id}">
                     <i class="fa${isInWishlist ? 's' : 'r'} fa-heart"></i>
                   </button>
                   <button class="action-btn quick-view-btn" data-id="${product.id}">
@@ -3039,10 +3329,8 @@
         document.querySelectorAll('.wishlist-btn').forEach(btn => {
           btn.addEventListener('click', (event) => {
             event.preventDefault();
-            const id = btn.getAttribute('data-id');
-            const isNowInWishlist = this.wishlist.toggleItem(id);
-            btn.classList.toggle('active', isNowInWishlist);
-            btn.innerHTML = `<i class="fa${isNowInWishlist ? 's' : 'r'} fa-heart"></i>`;
+            const id = btn.getAttribute('data-product-id');
+            wishlistManager.toggleWishlist(id);
           });
         });
 
@@ -3059,7 +3347,7 @@
         const product = this.products.find(p => p.id === productId);
         if (!product) return;
 
-        const isInWishlist = this.wishlist.isInWishlist(productId);
+        const isInWishlist = wishlistManager.isInWishlist(productId);
         const modal = document.getElementById('quick-view-modal');
         const modalContent = document.getElementById('quick-view-content');
 
@@ -3164,27 +3452,87 @@
         // Add to wishlist button
         const addToWishlistBtn = document.querySelector('.quick-view-add-to-wishlist');
         addToWishlistBtn.addEventListener('click', () => {
-          const isNowInWishlist = this.wishlist.toggleItem(product.id);
+          wishlistManager.toggleWishlist(product.id);
+          const isNowInWishlist = wishlistManager.isInWishlist(product.id);
           addToWishlistBtn.innerHTML = `
             <i class="fa${isNowInWishlist ? 's' : 'r'} fa-heart"></i>
             ${isNowInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
           `;
-
-          // Also update the heart icon on the product card
-          const wishlistBtn = document.querySelector(`.wishlist-btn[data-id="${product.id}"]`);
-          if (wishlistBtn) {
-            wishlistBtn.classList.toggle('active', isNowInWishlist);
-            wishlistBtn.innerHTML = `<i class="fa${isNowInWishlist ? 's' : 'r'} fa-heart"></i>`;
-          }
         });
       }
     }
 
-    // Initialize classes
+    // Initialize product listing
+    function initializeProductListing() {
+      if (typeof ProductListing !== 'undefined') {
+        const cart = new ShoppingCart();
+        const wishlist = new Wishlist();
+        window.productListing = new ProductListing(cart, wishlist);
+      } else {
+        console.error('ProductListing class not found');
+      }
+    }
+
+    // Main initialization function with performance optimization
+    async function initializeStore() {
+      try {
+        console.log('🚀 Initializing Dairy-Lift Investor Store...');
+
+        // Initialize Supabase
+        await initializeSupabase();
+
+        // Initialize product listing
+        initializeProductListing();
+
+        // Set up search and filter functionality with debouncing
+        const searchInput = document.getElementById('search-products');
+        if (searchInput) {
+          searchInput.addEventListener('input', (e) => {
+            performanceOptimizations.debounce('search-products', () => {
+              if (window.productListing) {
+                window.productListing.searchQuery = e.target.value.toLowerCase();
+                window.productListing.applyFilters();
+              }
+            }, 300);
+          });
+        }
+
+        // Set up category filters
+        document.querySelectorAll('.category-tag').forEach(tag => {
+          tag.addEventListener('click', (e) => {
+            performanceOptimizations.throttle('category-filter', () => {
+              document.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
+              e.target.classList.add('active');
+
+              if (window.productListing) {
+                window.productListing.filterCategory = e.target.dataset.category;
+                window.productListing.applyFilters();
+              }
+            }, 100);
+          });
+        });
+
+        // Set up sort functionality
+        const sortSelect = document.getElementById('sort-products');
+        if (sortSelect) {
+          sortSelect.addEventListener('change', (e) => {
+            if (window.productListing) {
+              window.productListing.sortOrder = e.target.value;
+              window.productListing.applyFilters();
+            }
+          });
+        }
+
+        console.log('✅ Investor Store initialized successfully');
+      } catch (error) {
+        console.error('❌ Failed to initialize store:', error);
+      }
+    }
+
+    // Mobile Menu Toggle functionality
     document.addEventListener('DOMContentLoaded', function() {
-      const cart = new Cart();
-      const wishlist = new Wishlist();
-      const productListing = new ProductListing(cart, wishlist);
+      // Initialize store
+      initializeStore();
 
       // Mobile Menu Toggle
       const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
@@ -3443,5 +3791,33 @@
       </div>
     </div>
   </footer>
+
+  <!-- Authentication Initialization -->
+  <script>
+    // Initialize authentication when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.DairyLiftAuth) {
+        console.log('Auth script loaded, initializing...');
+        window.DairyLiftAuth.initAuth();
+      } else {
+        console.log('Auth script not loaded, trying to initialize...');
+        // Try to initialize auth after a short delay
+        setTimeout(function() {
+          if (typeof initAuth === 'function') {
+            initAuth();
+          } else {
+            console.error('Auth initialization function not found');
+          }
+        }, 500);
+      }
+    });
+
+    // Also try to initialize on window load
+    window.addEventListener('load', function() {
+      if (typeof initAuth === 'function') {
+        initAuth();
+      }
+    });
+  </script>
 </body>
 </html>
